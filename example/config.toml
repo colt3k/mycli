@@ -1,0 +1,37 @@
+# comment ignore these lines
+
+capture="hello"
+path="/hello"
+url="http://this.com/test"
+
+[server]
+protocol="https"
+port=9090
+
+[client]
+port=1099
+
+[hideme]
+myprotocol="https"
+
+[[clients]]
+  name = "host1"
+
+  [clients.connection]
+    protocol = "ssh"
+    host = "8.8.8.8"
+    port = 22
+
+  [clients.cert]
+    certpath = "/some/path/to/cert"
+
+[[clients]]
+  name = "host2"
+
+  [clients.connection]
+    protocol = "ssh"
+    host = "1.1.1.1"
+    port = 22
+
+  [clients.cert]
+    certpath = "/some/path/to/cert2"
