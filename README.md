@@ -1,4 +1,4 @@
-#MyCLI
+# MyCLI
 
   Abilities
   - toml configuration file
@@ -30,4 +30,3 @@ Order of precedence on values
 # Possible Enhancements
   
   - "github.com/fsnotify/fsnotify" to watch for config file changes
-
