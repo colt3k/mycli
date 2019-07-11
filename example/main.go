@@ -146,6 +146,7 @@ func setupFlags() {
 					},
 					Flags: []mycli.CLIFlag{
 						&mycli.Int64Flg{Variable: &t4, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
+						&mycli.StringFlg{Variable: &applicationName, Name: "application", Usage: "pick application name", Required: true, Options: opts},
 					},
 				},
 				{

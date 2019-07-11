@@ -768,7 +768,13 @@ func (c *CLI) printUsage() {
 						if f.GHidden() {
 							continue
 						}
-						s := fmt.Sprintf("        -%s, -%s", f.GName(), f.GShortName())
+						var s string
+						if len(strings.TrimSpace(f.GShortName())) > 0 {
+							s = fmt.Sprintf("        -%s, -%s", f.GName(), f.GShortName())
+						} else {
+							s = fmt.Sprintf("        -%s", f.GName())
+						}
+
 						name := f.UnquotedUsage()
 						if len(name) > 0 {
 							s += "  " + name
