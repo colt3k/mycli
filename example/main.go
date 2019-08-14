@@ -188,6 +188,7 @@ func runAsClient() {
 }
 
 func showStuff() {
+	fmt.Println("Path: ", path)
 	fmt.Println("Debug Flag:", mycli.Debug)
 	fmt.Println("Test Flag:", t)
 	fmt.Println("Capture Flag:", capture)
