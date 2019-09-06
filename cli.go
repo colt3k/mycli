@@ -643,7 +643,8 @@ func (c *CLI) flagSetUsage() {
 	fmt.Println(byt.String())
 }
 func (c *CLI) printUsage() {
-
+	szMin := 28
+	szMax := 29
 	flag.Usage = func() {
 		var byt bytes.Buffer
 		byt.WriteString("NAME:\n")
@@ -675,12 +676,22 @@ func (c *CLI) printUsage() {
 					s = fmt.Sprintf("  -%s", f.GName())
 				}
 
-				name := f.UnquotedUsage()
-				if len(name) > 0 {
-					s += "  " + name
+				typeName := f.UnquotedUsage()
+				if len(typeName) > 0 {
+					s += "  " + typeName
+				}
+				if f.GRequired() {
+					if len(s) < szMin {
+						s += "\t\t(REQUIRED_FLAG)"
+					} else if len(s) <= szMax {
+						s += "\t(REQUIRED_FLAG)"
+					} else {
+						s += "  (REQUIRED_FLAG)"
+					}
+
 				}
 				if len(f.GEnvVar()) > 0 {
-					s += fmt.Sprintf("\n    %s\t(environment var)", f.GEnvVar())
+					s += fmt.Sprintf("\n    %s\t(as environment var)", f.GEnvVar())
 				}
 				if tmp := fmt.Sprintf("%v", f.GOptions()); len(tmp) > 2 {
 					s += fmt.Sprintf("\n    \tOptions: %s", tmp)
@@ -728,12 +739,21 @@ func (c *CLI) printUsage() {
 						s = fmt.Sprintf("      -%s", f.GName())
 					}
 
-					name := f.UnquotedUsage()
-					if len(name) > 0 {
-						s += "  " + name
+					typeName := f.UnquotedUsage()
+					if len(typeName) > 0 {
+						s += "  " + typeName
+					}
+					if f.GRequired() {
+						if len(s) < szMin {
+							s += "\t\t(REQUIRED_FLAG)"
+						} else if len(s) <= szMax {
+							s += "\t(REQUIRED_FLAG)"
+						} else {
+							s += "  (REQUIRED_FLAG)"
+						}
 					}
 					if len(f.GEnvVar()) > 0 {
-						s += fmt.Sprintf("\n        %s\t(environment var)", f.GEnvVar())
+						s += fmt.Sprintf("\n        %s\t(as environment var)", f.GEnvVar())
 					}
 					// Boolean flags of one ASCII letter are so common we
 					// treat them specially, putting their usage on the same line.
@@ -775,12 +795,21 @@ func (c *CLI) printUsage() {
 							s = fmt.Sprintf("        -%s", f.GName())
 						}
 
-						name := f.UnquotedUsage()
-						if len(name) > 0 {
-							s += "  " + name
+						typeName := f.UnquotedUsage()
+						if len(typeName) > 0 {
+							s += "  " + typeName
+						}
+						if f.GRequired() {
+							if len(s) < szMin {
+								s += "\t\t(REQUIRED_FLAG)"
+							} else if len(s) <= szMax {
+								s += "\t(REQUIRED_FLAG)"
+							} else {
+								s += "  (REQUIRED_FLAG)"
+							}
 						}
 						if len(f.GEnvVar()) > 0 {
-							s += fmt.Sprintf("\n          %s\t(environment var)", f.GEnvVar())
+							s += fmt.Sprintf("\n          %s\t(as environment var)", f.GEnvVar())
 						}
 						// Boolean flags of one ASCII letter are so common we
 						// treat them specially, putting their usage on the same line.
