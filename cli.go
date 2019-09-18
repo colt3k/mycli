@@ -207,6 +207,19 @@ func (c *CLI) SetupEnvVars() {
 			}
 		}
 	}
+
+	// setup ENV for SubCommands
+	for _, j := range c.Cmds {
+		for _, q := range j.SubCommands {
+			for i, d := range q.Flags {
+				if !d.GEnvVarExclude() {
+					envvar := c.buildEnvVar(d)
+					d.SetEnvVar(envvar)
+					q.Flags[i] = d
+				}
+			}
+		}
+	}
 }
 func (c *CLI) buildEnvVar(f CLIFlag) string {
 
