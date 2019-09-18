@@ -386,6 +386,15 @@ func (c *CLI) Parse() error {
 		}
 	}
 
+	for _, d := range c.Cmds {
+		for _, q := range d.SubCommands {
+			err = c.retrieveEnvVal(q.Flags)
+			if Err(err) {
+				return err
+			}
+		}
+	}
+
 	// anything not set use config file to set it
 	err = c.parseConfigFile()
 	if Err(err) {
