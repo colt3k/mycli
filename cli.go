@@ -442,7 +442,10 @@ func (c *CLI) Parse() error {
 				activeCmd = t
 				//log.Println("Active command ", t.Name)
 				// find subcommand to set instead of main command
+				subCs := make([]string, 0)
+				foundSub := false
 				for _, k := range d.SubCommands {
+					subCs = append(subCs, k.Name)
 					//log.Println("check sub commands for ", d.Name, " is ", a, " = ", k.Name, " or ", k.ShortName)
 					for q, b := range os.Args {
 						if b == strings.ToLower(k.Name) || b == strings.ToLower(k.ShortName) {
@@ -453,8 +456,12 @@ func (c *CLI) Parse() error {
 							//fmt.Printf("Args Size: %d and position 1 %v equals lowered name %s\n",len(os.Args), os.Args[1],strings.ToLower(d.Name))
 							activeCmd = t
 							//log.Println("Active sub command ", t.Name)
+							foundSub = true
 						}
 					}
+				}
+				if !foundSub {
+					t.Usage = strings.Join(subCs, ",")
 				}
 
 				break
@@ -636,6 +643,13 @@ func (c *CLI) flagSetUsage() {
 	byt.WriteString("Usage of ")
 	byt.WriteString(c.cur.Name)
 	byt.WriteString(":\n")
+	for i,sc := range c.cur.SubCommands {
+		if i > 0 {
+			byt.WriteString(",")
+		}
+		byt.WriteString("  "+sc.Name)
+	}
+
 	for _, f := range c.cur.Flags {
 		var s string
 		if len(strings.TrimSpace(f.GShortName())) > 0 {
