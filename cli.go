@@ -480,7 +480,7 @@ func (c *CLI) Parse() error {
 			os.Exit(1)
 		}
 
-		if activeCmd.generateBashCompletion {
+		if activeCmd.generateBashCompletion && activeCmd.BashCompletion != nil{
 			activeCmd.BashCompletion.(func(cli *CLI, cm *CLICommand))(c, activeCmd)
 			if c.TestMode {
 				return nil
