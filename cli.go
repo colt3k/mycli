@@ -443,7 +443,7 @@ func (c *CLI) Parse() error {
 				//log.Println("Active command ", t.Name)
 				// find subcommand to set instead of main command
 				subCs := make([]string, 0)
-				foundSub := false
+				//foundSub := false
 				for _, k := range d.SubCommands {
 					subCs = append(subCs, k.Name)
 					//log.Println("check sub commands for ", d.Name, " is ", a, " = ", k.Name, " or ", k.ShortName)
@@ -456,13 +456,13 @@ func (c *CLI) Parse() error {
 							//fmt.Printf("Args Size: %d and position 1 %v equals lowered name %s\n",len(os.Args), os.Args[1],strings.ToLower(d.Name))
 							activeCmd = t
 							//log.Println("Active sub command ", t.Name)
-							foundSub = true
+							//foundSub = true
 						}
 					}
 				}
-				if !foundSub {
-					t.Usage = strings.Join(subCs, ",")
-				}
+				//if !foundSub {
+				//	t.Usage = strings.Join(subCs, ",")
+				//}
 
 				break
 			}
@@ -642,7 +642,8 @@ func (c *CLI) flagSetUsage() {
 	var byt bytes.Buffer
 	byt.WriteString("Usage of ")
 	byt.WriteString(c.cur.Name)
-	byt.WriteString(":\n")
+	byt.WriteString(":\t")
+	byt.WriteString("("+c.cur.Usage+")\n")
 	for i,sc := range c.cur.SubCommands {
 		if i > 0 {
 			byt.WriteString(",")
@@ -672,7 +673,14 @@ func (c *CLI) flagSetUsage() {
 			s += "\n    \t"
 		}
 		s += strings.Replace(f.GUsage(), "\n", "\n    \t", -1)
-		s += fmt.Sprintf(" (default %v)", f.GValue())
+		switch v := f.GValue().(type) {
+		case string:
+			if len(v) > 0 {
+				s += fmt.Sprintf(" (default %v)", f.GValue())
+			}
+		default:
+			s += fmt.Sprintf(" (default %v)", f.GValue())
+		}
 		s += "\n"
 		byt.WriteString(s)
 	}

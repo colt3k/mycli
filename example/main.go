@@ -88,7 +88,7 @@ func setupFlags() {
 	c.Author = author
 	c.Copyright = copyright
 	c.BashCompletion = mycli.BashCompletionMain
-	c.MainAction = func() { fmt.Println("Hello") }
+	c.MainAction = func() { fmt.Println("Main Action Ran") }
 	c.PostGlblAction = func() error { return setLogger() }
 	//c.EnvPrefix = "T"
 	c.Flgs = []mycli.CLIFlag{

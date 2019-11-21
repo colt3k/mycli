@@ -25,8 +25,3 @@ Order of precedence on values
     2. environment
     3. config file
     4. defaults     (lowest priority)
-
-
-# Possible Enhancements
-  
-  - "github.com/fsnotify/fsnotify" to watch for config file changes
