@@ -663,6 +663,9 @@ func (c *CLI) flagSetUsage() {
 		if len(name) > 0 {
 			s += "  " + name
 		}
+		if tmp := fmt.Sprintf("%v", f.GOptions()); len(tmp) > 2 {
+			s += fmt.Sprintf("\n    \tOptions: %s", tmp)
+		}
 		// Boolean flags of one ASCII letter are so common we
 		// treat them specially, putting their usage on the same line.
 		if len(s) <= 4 { // space, space, '-', 'x'.
@@ -799,6 +802,9 @@ func (c *CLI) printUsage() {
 					if len(f.GEnvVar()) > 0 {
 						s += fmt.Sprintf("\n        %s\t(as environment var)", f.GEnvVar())
 					}
+					if tmp := fmt.Sprintf("%v", f.GOptions()); len(tmp) > 2 {
+						s += fmt.Sprintf("\n        \tOptions: %s", tmp)
+					}
 					// Boolean flags of one ASCII letter are so common we
 					// treat them specially, putting their usage on the same line.
 					if len(s) <= 4 { // space, space, '-', 'x'.
@@ -854,6 +860,9 @@ func (c *CLI) printUsage() {
 						}
 						if len(f.GEnvVar()) > 0 {
 							s += fmt.Sprintf("\n          %s\t(as environment var)", f.GEnvVar())
+						}
+						if tmp := fmt.Sprintf("%v", f.GOptions()); len(tmp) > 2 {
+							s += fmt.Sprintf("\n    \t    Options: %s", tmp)
 						}
 						// Boolean flags of one ASCII letter are so common we
 						// treat them specially, putting their usage on the same line.

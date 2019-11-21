@@ -110,7 +110,7 @@ func setupFlags() {
 			BashCompletion: mycli.BashCompletionSub,
 			Flags: []mycli.CLIFlag{
 				&mycli.StringFlg{Variable: &protocol, Name: "protocol", ShortName: "proto", Usage: "Set Protocol http(s)", Value: "http"},
-				&mycli.Int64Flg{Variable: &t2, Name: "port", ShortName: "p", Usage: "server port", Value: 8080, Required: true},
+				&mycli.Int64Flg{Variable: &t2, Name: "port", ShortName: "p", Usage: "Change server port", Value: 8080, Required: true},
 			},
 		},
 		{
@@ -123,7 +123,7 @@ func setupFlags() {
 			PostAction:     nil,
 			BashCompletion: mycli.BashCompletionSub,
 			Flags: []mycli.CLIFlag{
-				&mycli.Int64Flg{Variable: &t3, Name: "port", ShortName: "p", Usage: "Set Port", Value: 8080, Required: true},
+				&mycli.Int64Flg{Variable: &t3, Name: "port", ShortName: "p", Usage: "Change client port", Value: 8080, Required: true},
 			},
 		},
 		{
@@ -146,7 +146,7 @@ func setupFlags() {
 					},
 					Flags: []mycli.CLIFlag{
 						&mycli.Int64Flg{Variable: &t4, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
-						&mycli.StringFlg{Variable: &applicationName, Name: "application", Usage: "pick application name", Required: true, Options: opts},
+						&mycli.StringFlg{Variable: &applicationName, Name: "application", Usage: "Select application name", Required: true, Options: opts},
 					},
 				},
 				{
@@ -158,7 +158,7 @@ func setupFlags() {
 					},
 					Flags: []mycli.CLIFlag{
 						&mycli.Int64Flg{Variable: &t4, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
-						&mycli.StringFlg{Variable: &applicationName, Name: "application", ShortName: "a", Usage: "pick application name", Required: true, Options: opts},
+						&mycli.StringFlg{Variable: &applicationName, Name: "application", ShortName: "a", Usage: "Select application name", Required: true, Options: opts},
 					},
 				},
 			},
