@@ -827,12 +827,12 @@ func (c *CLI) printUsage() {
 				// show subcommands here
 				for i, k := range d.SubCommands {
 					if i == 0 {
-						byt.WriteString("    Sub Commands:\n")
+						byt.WriteString("    \n    Sub Commands:\n")
 					}
 					if k.Hidden {
 						continue
 					}
-					byt.WriteString(fmt.Sprintf("      %s\n", strings.ToLower(k.Name)))
+					byt.WriteString(fmt.Sprintf("      %s :\t%s\n", strings.ToLower(k.Name), strings.ToLower(k.Usage)))
 
 					for _, f := range k.Flags {
 						if f.GHidden() {
