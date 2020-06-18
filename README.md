@@ -21,7 +21,7 @@
   - Bash Autocompletion
     
 Order of precedence on values
-    1. commandline  (highest priority)
-    2. environment
-    3. config file
-    4. defaults     (lowest priority)
+   - 1. commandline  (highest priority)
+   - 2. environment
+   - 3. config file
+   - 4. defaults     (lowest priority)
