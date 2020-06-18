@@ -5,7 +5,7 @@ require (
 	github.com/colt3k/nglog v0.0.1
 	github.com/colt3k/utils/file v0.0.1
 	github.com/colt3k/utils/lock v0.0.1
-	github.com/colt3k/utils/version v0.0.1
+	github.com/colt3k/utils/version v0.0.2
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pelletier/go-toml v1.2.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect

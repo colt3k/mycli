@@ -74,6 +74,7 @@ type AppInfo struct {
 	Version     string
 	BuildDate   string
 	GitCommit   string
+	GoVersion	string
 	Title       string
 	Description string
 	Usage       string
@@ -145,7 +146,7 @@ func NewCli(f FatalAdapter, u UsageAdapter) *CLI {
 	t.Cmds = make([]*CLICommand, 0)
 
 	t.VersionPrint = func() {
-		fmt.Printf("\nversion=%s build=%s revision=%s\n\n", a.Version, a.BuildDate, a.GitCommit)
+		fmt.Printf("\nversion=%s build=%s revision=%s goversion=%s\n\n", a.Version, a.BuildDate, a.GitCommit, a.GoVersion)
 	}
 
 	return t

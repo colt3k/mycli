@@ -51,6 +51,7 @@ func TestVersionPrint(t *testing.T) {
 	cli.Version = "1.0"
 	cli.BuildDate = "09242018"
 	cli.GitCommit = "3456789uijy"
+	cli.GoVersion = "go1.14.3"
 	cli.PostGlblAction = func() { fmt.Println("hello") }
 	cases := []struct {
 		name  string
@@ -60,6 +61,7 @@ func TestVersionPrint(t *testing.T) {
 		{"version", "1.0", cli.Version},
 		{"build", "09242018", cli.BuildDate},
 		{"gitcommit", "3456789uijy", cli.GitCommit},
+		{"goversion", "go1.14.3", cli.GoVersion},
 	}
 
 	cli.Flgs = []CLIFlag{}
