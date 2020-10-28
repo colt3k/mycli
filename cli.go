@@ -32,20 +32,33 @@ var (
 )
 
 type CLICommand struct {
+	// Name of the command and passed for use
 	Name                   string
+	// ShortName used for execution but provides a shorter name
 	ShortName              string
+	// Usage definition of what this command accomplishes
 	Usage                  string
+	// Variable used to process a file full of configurations see custom/flgtoml.go as an example used with Hidden:true
 	Variable               interface{}
+	// Value unused
 	Value                  interface{}
+	// PreAction perform some action prior to the Action defined
 	PreAction              interface{}
+	// Action main action to perform for this Command
 	Action                 interface{}
+	// PostAction perform some action after the main Action
 	PostAction             interface{}
+	// Flags are command flags local to this command
 	Flags                  []CLIFlag
+	// FS reserved for internal use
 	FS                     *flag.FlagSet
+	// BashCompletion should be set to mycli.BashCompletionSub for sub command completion
 	BashCompletion         interface{}
 	generateBashCompletion bool
+	// Hidden stops from showing in help
 	Hidden                 bool
 	help                   bool
+	// SubCommands ability to create sub commands of a top command
 	SubCommands            Commands
 }
 
@@ -70,15 +83,23 @@ func (c *CLICommand) RetrieveConfigValue(val interface{}) error {
 	return nil
 }
 
+// AppInfo supplies all pertinent information for the application
 type AppInfo struct {
+	// Version typically v0.0.1 format of version
 	Version     string
+	// BuildDate typically set to a unix timestamp format
 	BuildDate   string
+	// GitCommit the short git commit hash
 	GitCommit   string
+	// GoVersion go version application was built upon
 	GoVersion	string
+	// Title plain text name for the application
 	Title       string
+	// Description detailed purpose of the application
 	Description string
 	Usage       string
 	Author      string
+	// Copyright typically company or developer copyright i.e. [ (c) 4-digit-year company/user ]
 	Copyright   string
 }
 
@@ -109,24 +130,34 @@ func (f *Fatal) PrintNoticeSubCmd(name, cmd string) {
 	log.Fatal(ng.Red("required flag '-%s' not set on sub-command: %s\n", name, cmd))
 }
 
+// CLI command line struct
 type CLI struct {
 	*AppInfo
+	// Flgs location to set all global flags
 	Flgs                   []CLIFlag
+	// Cmds global commands your application supports
 	Cmds                   []*CLICommand
+	// PostGlblAction runs an action after processing Global flags
 	PostGlblAction         interface{}
+	// MainAction this is a default if no Command is specified when the application is run
 	MainAction             interface{}
 	cur                    *CLICommand
+	// BashCompletion typically set to the built in default of mycli.BashCompletionMain
 	BashCompletion         interface{}
+	// VersionPrint an overridable function that prints by default the set Version, BuildDate, GitCommit, GoVersion
 	VersionPrint           interface{}
 	generateBashCompletion bool
 	Writer                 io.Writer
+	// EnvPrefix a prefix you can define to use on Environment Variables for values used in the application default "T"
 	EnvPrefix              string
+	// TestMode reserved for internal testing
 	TestMode               bool
 	fatalAdapter           FatalAdapter
 	usageAdapter           UsageAdapter
 	help, debug, version   bool
 }
 
+// NewCli creates an instance of the CLI application
 func NewCli(f FatalAdapter, u UsageAdapter) *CLI {
 	a := new(AppInfo)
 	t := new(CLI)
@@ -148,7 +179,8 @@ func NewCli(f FatalAdapter, u UsageAdapter) *CLI {
 	t.VersionPrint = func() {
 		fmt.Printf("\nversion=%s build=%s revision=%s goversion=%s\n\n", a.Version, a.BuildDate, a.GitCommit, a.GoVersion)
 	}
-
+	t.BashCompletion = BashCompletionMain
+	t.EnvPrefix = "T"
 	return t
 }
 
