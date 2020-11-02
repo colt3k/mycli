@@ -520,17 +520,24 @@ func (c *CLI) Parse() error {
 			os.Exit(1)
 		}
 
-		if activeCmd.generateBashCompletion && activeCmd.BashCompletion != nil{
+		// If generateBashCompletion flag is true and BashCompletion interface is not nil, execute it
+		if activeCmd.generateBashCompletion {
+			// If nil then we set to a subcommand completion, main is prepopulated
+			if activeCmd.BashCompletion == nil {
+				activeCmd.BashCompletion = BashCompletionSub
+			}
 			activeCmd.BashCompletion.(func(cli *CLI, cm *CLICommand))(c, activeCmd)
 			if c.TestMode {
 				return nil
 			}
 			os.Exit(1)
 		}
+		// If we find generate-bash-completion in the command line exit
 		if strings.Index(os.Args[len(os.Args)-1], "generate-bash-completion") > -1 {
 			//fmt.Println("generate_bash_completion_IS_BASH_AT_END_EXITING!!!")
 			os.Exit(1)
 		}
+		// If in debug mode print out subcommand
 		if Debug {
 			for _, f := range activeCmd.Flags {
 				fmt.Printf("Subcommand '%s' Flag '%s': %v\n", activeCmd.Name, f.GName(), f.GVariableToString())

@@ -88,7 +88,6 @@ func setupFlags() {
 	c.GoVersion = version.GOVERSION
 	c.Author = author
 	c.Copyright = copyright
-	c.BashCompletion = mycli.BashCompletionMain
 	c.MainAction = func() { fmt.Println("Main Action Ran") }
 	c.PostGlblAction = func() error { return setLogger() }
 	//c.EnvPrefix = "T"
@@ -108,7 +107,6 @@ func setupFlags() {
 			Action:         func() { runAsServer() },
 			PreAction:      func() { checkDebug("cmd") },
 			PostAction:     nil,
-			BashCompletion: mycli.BashCompletionSub,
 			Flags: []mycli.CLIFlag{
 				&mycli.StringFlg{Variable: &protocol, Name: "protocol", ShortName: "proto", Usage: "Set Protocol http(s)", Value: "http"},
 				&mycli.Int64Flg{Variable: &t2, Name: "port", ShortName: "p", Usage: "Change server port", Value: 8080, Required: true},
@@ -122,7 +120,6 @@ func setupFlags() {
 			Action:         func() { runAsClient() },
 			PreAction:      func() { checkDebug("cmd") },
 			PostAction:     nil,
-			BashCompletion: mycli.BashCompletionSub,
 			Flags: []mycli.CLIFlag{
 				&mycli.Int64Flg{Variable: &t3, Name: "port", ShortName: "p", Usage: "Change client port", Value: 8080, Required: true},
 			},
@@ -136,7 +133,6 @@ func setupFlags() {
 		{
 			Name:           "weserve",
 			Usage:          "use as a client",
-			BashCompletion: mycli.BashCompletionSub,
 			SubCommands: []*mycli.CLICommand{
 				{
 					Name:      "config",
