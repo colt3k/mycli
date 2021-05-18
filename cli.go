@@ -29,6 +29,7 @@ var (
 	ProxyNO    string
 	ProxySOCKS string
 	Debug      bool
+	DebugLevel int
 )
 
 type CLICommand struct {
@@ -617,6 +618,9 @@ func (c *CLI) setupHelpFlag() CLIFlag {
 }
 func (c *CLI) setupDebugFlag() CLIFlag {
 	return &BoolFlg{Variable: &Debug, Name: "debug", ShortName: "d", Usage: "flag set to debug", EnvVarExclude: true}
+}
+func (c *CLI) setupDebugLevelFlag() CLIFlag {
+	return &Int64Flg{Variable: &DebugLevel, Name: "debugLevel", ShortName: "dbglvl", Usage: "set debug level", EnvVarExclude: true, Value: 0}
 }
 func (c *CLI) setupVersionFlag() CLIFlag {
 	return &BoolFlg{Variable: &c.version, Name: "version", ShortName: "v", Usage: "flag to show version", EnvVarExclude: true, Hidden: true}

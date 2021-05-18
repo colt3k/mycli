@@ -60,7 +60,14 @@ func setLogger() error {
 		}
 		ca := log.NewConsoleAppender("*")
 		if mycli.Debug {
-			log.Modify(log.LogLevel(log.DEBUG), log.ColorsOn(), log.Appenders(ca, fa))
+			switch mycli.DebugLevel {
+			case 2:
+				log.Modify(log.LogLevel(log.DBGL2), log.ColorsOn(), log.Appenders(ca, fa))
+			case 3:
+				log.Modify(log.LogLevel(log.DBGL3), log.ColorsOn(), log.Appenders(ca, fa))
+			default:
+				log.Modify(log.LogLevel(log.DEBUG), log.ColorsOn(), log.Appenders(ca, fa))
+			}
 		} else {
 			log.Modify(log.LogLevel(log.INFO), log.ColorsOn(), log.Appenders(ca, fa))
 		}
