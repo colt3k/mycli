@@ -8,6 +8,7 @@ github.com/colt3k/utils/archive v0.0.5 h1:aeS6Uvi+Ml3OITLTDiiqyiYA2InG4Y5abZ3YW4
 github.com/colt3k/utils/archive v0.0.5/go.mod h1:ZCw58mw01d/Qa7WlIyPiwDjLUFuQCX8/9oiczTjC+90=
 github.com/colt3k/utils/encode v0.0.1 h1:hdJVDGzOUuhgtCTYWCHrocWVbKLQs84jfdqEJDKrTIs=
 github.com/colt3k/utils/encode v0.0.1/go.mod h1:WVkLaBMJuvVnzm7MQuhLddJ+jLKYVzBVTUXIHOupGD8=
+github.com/colt3k/utils/encode v0.0.2 h1:gLPuKcQ0A+d0n+Q3BCF+HVAkyEdpX/+V/8gbg7s3FGg=
 github.com/colt3k/utils/encode v0.0.2/go.mod h1:CImsKPEjGaUlImx34pOZoDrAFmpZlRuzXyz4+Cd3fa4=
 github.com/colt3k/utils/file v0.0.1 h1:/ViT2V2zdHq8UW6E2jbiPHKyAJDLJZyhebAmUQ+k4tc=
 github.com/colt3k/utils/file v0.0.1/go.mod h1:PxGygEQubP4BH7nv5HaQnw4FYhOVLojlPvHtErMpFSI=

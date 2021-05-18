@@ -25,6 +25,7 @@ type StringFlg struct {
 	Options       []string
 	Hidden        bool
 	debug         bool
+	debugLevel	  int64
 }
 
 func (c *StringFlg) BuildFlag(flgSet *flag.FlagSet) {
@@ -166,6 +167,9 @@ func (c *StringFlg) GHidden() bool {
 }
 func (c *StringFlg) SetDebug(dbg bool) {
 	c.debug = dbg
+}
+func (c *StringFlg) SetDebugLevel(lvl int64) {
+	c.debugLevel = lvl
 }
 func (c *StringFlg) UnquotedUsage() string {
 	return "string"

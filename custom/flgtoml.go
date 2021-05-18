@@ -77,6 +77,7 @@ type TomlFlg struct {
 	Options       []Clients
 	Hidden        bool
 	debug         bool
+	debugLevel	  int64
 	Command       string
 }
 
@@ -253,4 +254,8 @@ func (c *TomlFlg) GHidden() bool {
 // SetDebug set debug property for flag
 func (c *TomlFlg) SetDebug(dbg bool) {
 	c.debug = dbg
+}
+
+func (c *TomlFlg) SetDebugLevel(lvl int64) {
+	c.debugLevel = lvl
 }

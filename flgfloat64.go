@@ -25,6 +25,7 @@ type Float64Flg struct {
 	Options       []float64
 	Hidden        bool
 	debug         bool
+	debugLevel	  int64
 }
 
 func (c *Float64Flg) BuildFlag(flgSet *flag.FlagSet) {
@@ -154,6 +155,9 @@ func (c *Float64Flg) GHidden() bool {
 }
 func (c *Float64Flg) SetDebug(dbg bool) {
 	c.debug = dbg
+}
+func (c *Float64Flg) SetDebugLevel(lvl int64) {
+	c.debugLevel = lvl
 }
 func (c *Float64Flg) UnquotedUsage() string {
 	return "float"

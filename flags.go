@@ -27,6 +27,7 @@ type CLIFlag interface {
 	RetrieveConfigValue(val interface{}) error
 	RequiredAndNotSet() bool
 	SetDebug(bool)
+	SetDebugLevel(int64)
 	SetEnvVar(string)
 	ValidValue() bool
 	GCommaSepVal() bool

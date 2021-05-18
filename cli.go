@@ -29,7 +29,7 @@ var (
 	ProxyNO    string
 	ProxySOCKS string
 	Debug      bool
-	DebugLevel int
+	DebugLevel int64
 )
 
 type CLICommand struct {
@@ -197,6 +197,10 @@ func (c *CLI) addDefaultFlags() {
 	}
 	if !c.findFlag("debug", c.Flgs) {
 		flg := c.setupDebugFlag()
+		dfFlgs = append(dfFlgs, flg)
+	}
+	if !c.findFlag("debugLevel", c.Flgs) {
+		flg := c.setupDebugLevelFlag()
 		dfFlgs = append(dfFlgs, flg)
 	}
 	if !c.findFlag("version", c.Flgs) {

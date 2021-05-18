@@ -27,6 +27,7 @@ type Int64Flg struct {
 	Options       []int64
 	Hidden        bool
 	debug         bool
+	debugLevel	  int64
 }
 func (c *Int64Flg) BuildFlag(flgSet *flag.FlagSet) {
 	fld := c.Variable.(*int64)
@@ -158,6 +159,9 @@ func (c *Int64Flg) GHidden() bool {
 }
 func (c *Int64Flg) SetDebug(dbg bool) {
 	c.debug = dbg
+}
+func (c *Int64Flg) SetDebugLevel(lvl int64) {
+	c.debugLevel = lvl
 }
 func (c *Int64Flg) UnquotedUsage() string {
 	return "int"

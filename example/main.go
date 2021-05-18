@@ -68,6 +68,7 @@ func setLogger() error {
 			default:
 				log.Modify(log.LogLevel(log.DEBUG), log.ColorsOn(), log.Appenders(ca, fa))
 			}
+			log.Logf(log.DEBUG, "> debug mode on level %d", mycli.DebugLevel)
 		} else {
 			log.Modify(log.LogLevel(log.INFO), log.ColorsOn(), log.Appenders(ca, fa))
 		}
@@ -116,7 +117,8 @@ func setupFlags() {
 			PostAction:     nil,
 			Flags: []mycli.CLIFlag{
 				&mycli.StringFlg{Variable: &protocol, Name: "protocol", ShortName: "proto", Usage: "Set Protocol http(s)", Value: "http"},
-				&mycli.Int64Flg{Variable: &t2, Name: "port", ShortName: "p", Usage: "Change server port", Value: 8080, Required: true},
+				// if value is set and required passed in value has to be different or it will think it wasn't set
+				&mycli.Int64Flg{Variable: &t2, Name: "port", ShortName: "p", Usage: "Change server port", Value: 8080},
 			},
 		},
 		{
