@@ -15,9 +15,9 @@ func BashCompletionMain(c *CLI) {
 	for _, d := range c.Flgs {
 		low := strings.ToLower(d.GName())
 		if !d.GHidden() {
-			fmt.Fprintln(c.Writer, strings.ToLower(low))
+			fmt.Fprintln(c.Writer, strings.ToLower("-"+low))
 		} else if low == "version" {
-			fmt.Fprintln(c.Writer, "v,version")
+			fmt.Fprintln(c.Writer, "-v,-version")
 		}
 	}
 	for _, d := range c.Cmds {
@@ -47,9 +47,9 @@ func BashCompletionSub(c *CLI, cm *CLICommand) {
 	for _, d := range cm.Flags {
 		low := strings.ToLower(d.GName())
 		if !d.GHidden() && low != "help" {
-			fmt.Fprintln(c.Writer, low)
+			fmt.Fprintln(c.Writer, "-"+low)
 		} else if low == "help" {
-			fmt.Fprintln(c.Writer, "h,help")
+			fmt.Fprintln(c.Writer, "-h,-help")
 		}
 	}
 }
