@@ -183,7 +183,7 @@ func (c *TomlFlg) RetrieveEnvValue() error {
 }
 
 // RetrieveConfigValue get config value for flag
-func (c *TomlFlg) RetrieveConfigValue(val interface{}) error {
+func (c *TomlFlg) RetrieveConfigValue(val interface{}, name string) error {
 	treeMap := val.(*toml.Tree).ToMap()
 	valS := treeMap[c.Name]
 	wrapper := make(map[string]interface{}, 1)

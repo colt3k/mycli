@@ -95,12 +95,12 @@ func (c *Int64Flg) RetrieveEnvValue() error {
 	}
 	return nil
 }
-func (c *Int64Flg) RetrieveConfigValue(val interface{}) error {
+func (c *Int64Flg) RetrieveConfigValue(val interface{}, name string) error {
 	var curVal int64
-	name := c.Command+"."+c.Name
-	if len(c.Command) == 0 {
-		name = c.Name
-	}
+	//name := c.Command+"."+c.Name
+	//if len(c.Command) == 0 {
+	//	name = c.Name
+	//}
 	switch val.(type) {
 	case *toml.Tree:
 		curVal = val.(*toml.Tree).Get(name).(int64)

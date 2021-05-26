@@ -96,7 +96,7 @@ func setupFlags() {
 	c.GoVersion = version.GOVERSION
 	c.Author = author
 	c.Copyright = copyright
-	c.MainAction = func() { fmt.Println("Main Action Ran") }
+	c.MainAction = func() { fmt.Println("Main Action Ran, no other commands set") }
 	c.PostGlblAction = func() error { return setLogger() }
 	//c.EnvPrefix = "T"
 	c.Flgs = []mycli.CLIFlag{
@@ -185,11 +185,11 @@ func checkDebug(txt string) {
 	showStuff()
 }
 func runAsServer() {
-	fmt.Println("\n** Running as server **")
+	fmt.Println("\n** Function just prints -> Running as server **")
 	fmt.Println()
 }
 func runAsClient() {
-	fmt.Println("\n** Running as client **")
+	fmt.Println("\n** Function just prints -> Running as client **")
 	fmt.Println()
 }
 

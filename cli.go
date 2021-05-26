@@ -66,7 +66,7 @@ type CLICommand struct {
 type Commands []*CLICommand
 
 // Convert this section to a JSON string
-func (c *CLICommand) RetrieveConfigValue(val interface{}) error {
+func (c *CLICommand) RetrieveConfigValue(val interface{}, name string) error {
 	treeMap := val.(*toml.Tree).ToMap()
 	valS := treeMap[c.Name]
 	wrapper := make(map[string]interface{}, 1)
@@ -330,40 +330,76 @@ func FixPath(path string) string {
 }
 
 func (c *CLI) parseConfigFile() error {
-
+	debug := false
 	// if doesn't exist return
 	if _, err := os.Stat(configfile); os.IsNotExist(err) {
+		log.Printf("!!! config file not found %v\n", configfile)
 		return nil
 	}
 	if len(strings.TrimSpace(configfile)) > 0 {
 		configfile = FixPath(configfile)
 		tree, err := LoadToml(configfile)
 		if err != nil {
+			log.Printf("!!! issue loading config toml file %v\n", err)
 			return err
 		}
 		// find any missing values and set them from the tree
 		for _, f := range c.Flgs {
-			if tree.Has(f.GName()) {
-				err := f.RetrieveConfigValue(tree)
+			key := f.GName()
+			if tree.Has(key) {
+				err = f.RetrieveConfigValue(tree, key)
 				if Err(err) {
+					log.Printf("!!! issue retrieving flag value from config toml file %v\n", err)
 					return err
+				}
+				if key == "debug" && f.GVariableToString() == "true"{
+					debug = true
+				}
+				if debug {
+					log.Printf("- config file has global flag %v value found of %v", key, f.GVariableToString())
 				}
 			}
 		}
 
 		for _, cmd := range c.Cmds {
 			for _, f := range cmd.Flags {
-				if tree.Has(cmd.Name + "." + f.GName()) {
-					err := f.RetrieveConfigValue(tree)
+				key := cmd.Name + "." + f.GName()
+				if tree.Has(key) {
+					err = f.RetrieveConfigValue(tree, key)
 					if Err(err) {
+						log.Printf("!!! issue retrieving command value from config toml file %v\n", err)
 						return err
+					}
+					if debug {
+						log.Printf("- config file has command flag %v value found of %v", key, f.GVariableToString())
+					}
+				}
+			}
+			for _, subcmd := range cmd.SubCommands {
+				for _, f := range subcmd.Flags {
+					key := cmd.Name + "." + subcmd.Name + "." +f.GName()
+					//log.Printf("- looking for %v", key)
+					if tree.Has(key) {
+						err = f.RetrieveConfigValue(tree, key)
+						if Err(err) {
+							log.Printf("!!! issue retrieving command value from config toml file %v\n", err)
+							return err
+						}
+						if debug {
+							log.Printf("- config file has subcommand flag %v value found of %v", key, f.GVariableToString())
+						}
 					}
 				}
 			}
 			if cmd.Hidden && tree.Has(cmd.Name) {
-				err := cmd.RetrieveConfigValue(tree)
+				key := cmd.Name
+				err = cmd.RetrieveConfigValue(tree, key)
 				if Err(err) {
+					log.Printf("!!! issue retrieving config value from config toml file %v\n", err)
 					return err
+				}
+				if debug {
+					log.Printf("- config file has hidden command %v value found of %v", key, cmd.Variable)
 				}
 			}
 		}
@@ -467,6 +503,8 @@ func (c *CLI) Parse() error {
 	}
 
 	// Process input
+	var parentCmd string
+	var subCmd string
 	var activeCmd *CLICommand
 	var pos int
 	for _, d := range c.Cmds {
@@ -478,6 +516,7 @@ func (c *CLI) Parse() error {
 				t.FS.Usage = c.flagSetUsage
 				//fmt.Printf("Args Size: %d and position 1 %v equals lowered name %s\n",len(os.Args), os.Args[1],strings.ToLower(d.Name))
 				activeCmd = t
+				parentCmd = t.Name
 				//log.Println("Active command ", t.Name)
 				// find subcommand to set instead of main command
 				subCs := make([]string, 0)
@@ -493,6 +532,7 @@ func (c *CLI) Parse() error {
 							t.FS.Usage = c.flagSetUsage
 							//fmt.Printf("Args Size: %d and position 1 %v equals lowered name %s\n",len(os.Args), os.Args[1],strings.ToLower(d.Name))
 							activeCmd = t
+							subCmd = t.Name
 							//log.Println("Active sub command ", t.Name)
 							//foundSub = true
 						}
@@ -509,7 +549,16 @@ func (c *CLI) Parse() error {
 
 	if activeCmd != nil {
 		if Debug {
-			fmt.Println("Active command ", activeCmd.Name)
+			if c.MainAction != nil {
+				fmt.Println("")
+				fmt.Println("- Skipping Main Action and running requested Commands. -")
+				fmt.Println("")
+			}
+			if len(subCmd) > 0 {
+				fmt.Printf("Active command : %v %v\n", parentCmd, subCmd)
+			} else {
+				fmt.Printf("Active command : %v\n", activeCmd.Name)
+			}
 		}
 		err := activeCmd.FS.Parse(os.Args[pos:])
 		PanicErr(err)
@@ -574,6 +623,8 @@ func (c *CLI) Parse() error {
 		if err != nil {
 			return err
 		}
+	} else {
+		fmt.Println("!!! no command set to run")
 	}
 	return nil
 }

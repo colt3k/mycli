@@ -2,6 +2,16 @@
 
   Abilities
   - toml configuration file
+
+    - allows you to configure all flags for all commands but you still  need to pass the command/subcommand to run
+    - see example/config.toml for example
+      
+            Example
+            globalflagName="XX"
+      
+            [command]
+                [command.subcommand]
+                flagname="XX"
   - prefix to environment values
   - Commands
   - Sub Commands

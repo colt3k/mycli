@@ -84,12 +84,12 @@ func (c *StringFlg) RetrieveEnvValue() error {
 	}
 	return nil
 }
-func (c *StringFlg) RetrieveConfigValue(val interface{}) error {
+func (c *StringFlg) RetrieveConfigValue(val interface{}, name string) error {
 	var curVal string
-	name := c.Command + "." + c.Name
-	if len(c.Command) == 0 {
-		name = c.Name
-	}
+	//name := c.Command + "." + c.Name
+	//if len(c.Command) == 0 {
+	//	name = c.Name
+	//}
 	switch val.(type) {
 	case *toml.Tree:
 		curVal = val.(*toml.Tree).Get(name).(string)

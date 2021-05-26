@@ -24,7 +24,7 @@ type CLIFlag interface {
 	GVariableToString() string
 	Kind() error
 	RetrieveEnvValue() error
-	RetrieveConfigValue(val interface{}) error
+	RetrieveConfigValue(val interface{}, name string) error
 	RequiredAndNotSet() bool
 	SetDebug(bool)
 	SetDebugLevel(int64)

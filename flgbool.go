@@ -91,12 +91,12 @@ func (c *BoolFlg) RetrieveEnvValue() error {
 	}
 	return nil
 }
-func (c *BoolFlg) RetrieveConfigValue(val interface{}) error {
+func (c *BoolFlg) RetrieveConfigValue(val interface{}, name string) error {
 	var curVal bool
-	name := c.Command + "." + c.Name
-	if len(c.Command) == 0 {
-		name = c.Name
-	}
+	//name := c.Command + "." + c.Name
+	//if len(c.Command) == 0 {
+	//	name = c.Name
+	//}
 	switch val.(type) {
 	case *toml.Tree:
 		curVal = val.(*toml.Tree).Get(name).(bool)
