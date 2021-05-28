@@ -331,6 +331,10 @@ func FixPath(path string) string {
 
 func (c *CLI) parseConfigFile() error {
 	debug := false
+	// no config file passed, return
+	if len(configfile) == 0 {
+		return nil
+	}
 	// if doesn't exist return
 	if _, err := os.Stat(configfile); os.IsNotExist(err) {
 		log.Printf("!!! config file not found %v\n", configfile)
