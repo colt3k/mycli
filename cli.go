@@ -30,6 +30,7 @@ var (
 	ProxySOCKS string
 	Debug      bool
 	DebugLevel int64
+	GenerateBashCompletion bool
 )
 
 type CLICommand struct {
@@ -423,6 +424,11 @@ func (c *CLI) Parse() error {
 	c.buildFlags(flag.CommandLine, c.Flgs, nil)
 
 	//log.Println("passed parameters: ", os.Args[1:])
+	for _,v := range os.Args[1:] {
+		if v == "--generate-bash-completion" {
+			GenerateBashCompletion = true
+		}
+	}
 	flag.Parse()
 	err = c.retrieveEnvVal(c.Flgs)
 	if Err(err) {
@@ -480,7 +486,7 @@ func (c *CLI) Parse() error {
 	}
 
 	c.checkRequired("", c.Flgs) // see if required ones are set
-	if c.help {
+	if c.help && !GenerateBashCompletion {
 		c.printUsage()
 		if !c.TestMode {
 			os.Exit(1)
@@ -500,7 +506,7 @@ func (c *CLI) Parse() error {
 		}
 	}
 
-	if Debug {
+	if Debug && !GenerateBashCompletion {
 		for _, f := range c.Flgs {
 			fmt.Printf("Flag '%s': %v\n", f.GName(), f.GVariableToString())
 		}
@@ -511,6 +517,7 @@ func (c *CLI) Parse() error {
 	var subCmd string
 	var activeCmd *CLICommand
 	var pos int
+
 	for _, d := range c.Cmds {
 		for i, a := range os.Args {
 			if len(os.Args) > 1 && (a == strings.ToLower(d.Name) || a == strings.ToLower(d.ShortName)) {
@@ -552,7 +559,7 @@ func (c *CLI) Parse() error {
 	}
 
 	if activeCmd != nil {
-		if Debug {
+		if Debug && !GenerateBashCompletion {
 			if c.MainAction != nil {
 				fmt.Println("")
 				fmt.Println("- Skipping Main Action and running requested Commands. -")
@@ -596,7 +603,7 @@ func (c *CLI) Parse() error {
 			os.Exit(1)
 		}
 		// If in debug mode print out subcommand
-		if Debug {
+		if Debug && !GenerateBashCompletion {
 			for _, f := range activeCmd.Flags {
 				fmt.Printf("Subcommand '%s' Flag '%s': %v\n", activeCmd.Name, f.GName(), f.GVariableToString())
 			}
@@ -714,6 +721,7 @@ func (c *CLI) buildFlags(flgSet *flag.FlagSet, flgs []CLIFlag, cm *CLICommand) {
 		flg := c.setupBashFlag(cm)
 		flgs = append(flgs, flg)
 	}
+
 	if cm != nil && !c.findFlag("help", flgs) {
 		flgs = append(flgs, &BoolFlg{Variable: &cm.help, Name: "help", ShortName: "h", Usage: "print commands"})
 	}
