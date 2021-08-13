@@ -636,7 +636,6 @@ func (c *CLI) Parse() error {
 		}
 	} else {
 		fmt.Println("!!! no command set to run")
-		return fmt.Errorf("no command set to run")
 	}
 	return nil
 }
