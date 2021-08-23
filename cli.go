@@ -150,6 +150,8 @@ type CLI struct {
 	VersionPrint           interface{}
 	generateBashCompletion bool
 	Writer                 io.Writer
+	// DisableEnvVars disable all environment variables
+	DisableEnvVars		   bool
 	// EnvPrefix a prefix you can define to use on Environment Variables for values used in the application default "T"
 	EnvPrefix              string
 	// TestMode reserved for internal testing
@@ -182,6 +184,7 @@ func NewCli(f FatalAdapter, u UsageAdapter) *CLI {
 		fmt.Printf("\nversion=%s build=%s revision=%s goversion=%s\n\n", a.Version, a.BuildDate, a.GitCommit, a.GoVersion)
 	}
 	t.BashCompletion = BashCompletionMain
+	t.DisableEnvVars = true
 	t.EnvPrefix = "T"
 	return t
 }
@@ -189,6 +192,7 @@ func NewCli(f FatalAdapter, u UsageAdapter) *CLI {
 func (c *CLI) Help() bool {
 	return c.help
 }
+
 func (c *CLI) addDefaultFlags() {
 
 	dfFlgs := make([]CLIFlag, 0)
@@ -224,7 +228,7 @@ func (c *CLI) addDefaultFlags() {
 	c.Flgs = dfFlgs
 }
 
-// Loop through all Flags and Command Flags then set EnvVars based on Prefix and NAME or Override
+// SetupEnvVars Loop through all Flags and Command Flags then set EnvVars based on Prefix and NAME or Override
 func (c *CLI) SetupEnvVars() {
 
 	tmp := make([]CLIFlag, 0)
@@ -413,9 +417,12 @@ func (c *CLI) parseConfigFile() error {
 }
 func (c *CLI) Parse() error {
 
-	// add default flags
+	// add default flags, help, debug, debuglevel, version, config
 	c.addDefaultFlags()
-	c.SetupEnvVars()
+	// Disable all Env Variables
+	if !c.DisableEnvVars {
+		c.SetupEnvVars()
+	}
 	err := c.ValidateFlgKind()
 	if err != nil {
 		log.Fatalf("issue validating flag kind\n%+v", err)
@@ -692,13 +699,18 @@ func (c *CLI) setupVersionFlag() CLIFlag {
 	return &BoolFlg{Variable: &c.version, Name: "version", ShortName: "v", Usage: "flag to show version", EnvVarExclude: true, Hidden: true}
 }
 func (c *CLI) setupConfigFlag() CLIFlag {
-	return &StringFlg{Variable: &configfile, Name: "config", ShortName: "c", EnvVar: "config_filepath", Usage: "config file path"}
+	if !c.DisableEnvVars {
+		return &StringFlg{Variable: &configfile, Name: "config", ShortName: "c", EnvVar: "config_filepath", Usage: "config file path"}
+	} else {
+		return &StringFlg{Variable: &configfile, Name: "config", ShortName: "c", Usage: "config file path"}
+	}
 }
 func (c *CLI) setupProxyFlags() []CLIFlag {
+
 	return []CLIFlag{
-		&StringFlg{Variable: &ProxyHTTP, Name: "proxyhttp", EnvVar: "http_proxy", Usage: UseHTTPProxy},
-		&StringFlg{Variable: &ProxyHTTPS, Name: "proxyhttps", EnvVar: "https_proxy", Usage: UseHTTPSProxy},
-		&StringFlg{Variable: &ProxyNO, Name: "noproxy", EnvVar: "no_proxy", Usage: UseNoProxy},
+		&StringFlg{Variable: &ProxyHTTP, Name: "proxyhttp", EnvVar: "HTTP_PROXY", Usage: UseHTTPProxy},
+		&StringFlg{Variable: &ProxyHTTPS, Name: "proxyhttps", EnvVar: "HTTPS_PROXY", Usage: UseHTTPSProxy},
+		&StringFlg{Variable: &ProxyNO, Name: "noproxy", EnvVar: "NO_PROXY", Usage: UseNoProxy},
 	}
 }
 
