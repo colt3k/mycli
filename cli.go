@@ -692,8 +692,14 @@ func (c *CLI) setupHelpFlag() CLIFlag {
 func (c *CLI) setupDebugFlag() CLIFlag {
 	return &BoolFlg{Variable: &Debug, Name: "debug", ShortName: "d", Usage: "flag set to debug", EnvVarExclude: true}
 }
+func (c *CLI) IsDebug() bool {
+	return Debug
+}
 func (c *CLI) setupDebugLevelFlag() CLIFlag {
 	return &Int64Flg{Variable: &DebugLevel, Name: "debugLevel", ShortName: "dbglvl", Usage: "set debug level", EnvVarExclude: true, Value: 0}
+}
+func (c *CLI) DebugLevel() int64 {
+	return DebugLevel
 }
 func (c *CLI) setupVersionFlag() CLIFlag {
 	return &BoolFlg{Variable: &c.version, Name: "version", ShortName: "v", Usage: "flag to show version", EnvVarExclude: true, Hidden: true}
@@ -713,7 +719,21 @@ func (c *CLI) setupProxyFlags() []CLIFlag {
 		&StringFlg{Variable: &ProxyNO, Name: "noproxy", EnvVar: "NO_PROXY", Usage: UseNoProxy},
 	}
 }
-
+func (c *CLI) IsProxySet() bool {
+	if len(ProxyHTTP) > 0 || len(ProxyHTTPS) > 0 || len(ProxyNO) > 0 {
+		return true
+	}
+	return false
+}
+func (c *CLI) GetHttpProxy() string {
+	return ProxyHTTP
+}
+func (c *CLI) GetHttpsProxy() string {
+	return ProxyHTTPS
+}
+func (c *CLI) GetNoProxy() string {
+	return ProxyNO
+}
 func (c *CLI) setupBashFlag(cm *CLICommand) CLIFlag {
 
 	//set flag -generate-bash-completion
