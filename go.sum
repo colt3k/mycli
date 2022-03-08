@@ -1,8 +1,8 @@
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/colt3k/nglog v0.0.1/go.mod h1:1uzjsWq3W1tGYxZ3/kGrXpmeaVPvt9chX7n5cn/Qp8c=
-github.com/colt3k/nglog v0.0.17 h1:ZpAkEXEl8WQd+oO5tGA4RbfWPJh6jZ/J2xqCl+JqflI=
-github.com/colt3k/nglog v0.0.17/go.mod h1:sjAPAnpP/TjB3AM6tzlEO7P8MI7v6DcsQCYlkv5N4T8=
+github.com/colt3k/nglog v0.0.22 h1:bnAVg6OtVlNPghZphL+bTvxw0CANA5C63rReFpshnHU=
+github.com/colt3k/nglog v0.0.22/go.mod h1:sjAPAnpP/TjB3AM6tzlEO7P8MI7v6DcsQCYlkv5N4T8=
 github.com/colt3k/utils/archive v0.0.5 h1:aeS6Uvi+Ml3OITLTDiiqyiYA2InG4Y5abZ3YW4ryxJo=
 github.com/colt3k/utils/archive v0.0.5/go.mod h1:ZCw58mw01d/Qa7WlIyPiwDjLUFuQCX8/9oiczTjC+90=
 github.com/colt3k/utils/crypt v0.0.1/go.mod h1:g6Wcw08sR4VqMkT6+3QGiX4fb+NKl9QvwsmiLnsLKOs=

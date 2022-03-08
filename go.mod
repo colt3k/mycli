@@ -2,7 +2,7 @@ module github.com/colt3k/mycli
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
-	github.com/colt3k/nglog v0.0.17
+	github.com/colt3k/nglog v0.0.22
 	github.com/colt3k/utils/file v0.0.5
 	github.com/colt3k/utils/lock v0.0.2
 	github.com/colt3k/utils/version v0.0.3

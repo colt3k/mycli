@@ -23,45 +23,45 @@ const (
 )
 
 var (
-	configfile string
-	ProxyHTTP  string
-	ProxyHTTPS string
-	ProxyNO    string
-	ProxySOCKS string
-	Debug      bool
-	DebugLevel int64
+	configfile             string
+	ProxyHTTP              string
+	ProxyHTTPS             string
+	ProxyNO                string
+	ProxySOCKS             string
+	Debug                  bool
+	DebugLevel             int64
 	GenerateBashCompletion bool
 )
 
 type CLICommand struct {
 	// Name of the command and passed for use
-	Name                   string
+	Name string
 	// ShortName used for execution but provides a shorter name
-	ShortName              string
+	ShortName string
 	// Usage definition of what this command accomplishes
-	Usage                  string
+	Usage string
 	// Variable used to process a file full of configurations see custom/flgtoml.go as an example used with Hidden:true
-	Variable               interface{}
+	Variable interface{}
 	// Value unused
-	Value                  interface{}
+	Value interface{}
 	// PreAction perform some action prior to the Action defined
-	PreAction              interface{}
+	PreAction interface{}
 	// Action main action to perform for this Command
-	Action                 interface{}
+	Action interface{}
 	// PostAction perform some action after the main Action
-	PostAction             interface{}
+	PostAction interface{}
 	// Flags are command flags local to this command
-	Flags                  []CLIFlag
+	Flags []CLIFlag
 	// FS reserved for internal use
-	FS                     *flag.FlagSet
+	FS *flag.FlagSet
 	// BashCompletion should be set to mycli.BashCompletionSub for sub command completion
 	BashCompletion         interface{}
 	generateBashCompletion bool
 	// Hidden stops from showing in help
-	Hidden                 bool
-	help                   bool
+	Hidden bool
+	help   bool
 	// SubCommands ability to create sub commands of a top command
-	SubCommands            Commands
+	SubCommands Commands
 }
 
 type Commands []*CLICommand
@@ -88,21 +88,21 @@ func (c *CLICommand) RetrieveConfigValue(val interface{}, name string) error {
 // AppInfo supplies all pertinent information for the application
 type AppInfo struct {
 	// Version typically v0.0.1 format of version
-	Version     string
+	Version string
 	// BuildDate typically set to a unix timestamp format
-	BuildDate   string
+	BuildDate string
 	// GitCommit the short git commit hash
-	GitCommit   string
+	GitCommit string
 	// GoVersion go version application was built upon
-	GoVersion	string
+	GoVersion string
 	// Title plain text name for the application
-	Title       string
+	Title string
 	// Description detailed purpose of the application
 	Description string
 	Usage       string
 	Author      string
 	// Copyright typically company or developer copyright i.e. [ (c) 4-digit-year company/user ]
-	Copyright   string
+	Copyright string
 }
 
 type UsageAdapter interface {
@@ -136,29 +136,29 @@ func (f *Fatal) PrintNoticeSubCmd(name, cmd string) {
 type CLI struct {
 	*AppInfo
 	// Flgs location to set all global flags
-	Flgs                   []CLIFlag
+	Flgs []CLIFlag
 	// Cmds global commands your application supports
-	Cmds                   []*CLICommand
+	Cmds []*CLICommand
 	// PostGlblAction runs an action after processing Global flags
-	PostGlblAction         interface{}
+	PostGlblAction interface{}
 	// MainAction this is a default if no Command is specified when the application is run
-	MainAction             interface{}
-	cur                    *CLICommand
+	MainAction interface{}
+	cur        *CLICommand
 	// BashCompletion typically set to the built in default of mycli.BashCompletionMain
-	BashCompletion         interface{}
+	BashCompletion interface{}
 	// VersionPrint an overridable function that prints by default the set Version, BuildDate, GitCommit, GoVersion
 	VersionPrint           interface{}
 	generateBashCompletion bool
 	Writer                 io.Writer
 	// DisableEnvVars disable all environment variables
-	DisableEnvVars		   bool
+	DisableEnvVars bool
 	// EnvPrefix a prefix you can define to use on Environment Variables for values used in the application default "T"
-	EnvPrefix              string
+	EnvPrefix string
 	// TestMode reserved for internal testing
-	TestMode               bool
-	fatalAdapter           FatalAdapter
-	usageAdapter           UsageAdapter
-	help, debug, version   bool
+	TestMode             bool
+	fatalAdapter         FatalAdapter
+	usageAdapter         UsageAdapter
+	help, debug, version bool
 }
 
 // NewCli creates an instance of the CLI application
@@ -361,7 +361,7 @@ func (c *CLI) parseConfigFile() error {
 					log.Printf("!!! issue retrieving flag value from config toml file %v\n", err)
 					return err
 				}
-				if key == "debug" && f.GVariableToString() == "true"{
+				if key == "debug" && f.GVariableToString() == "true" {
 					debug = true
 				}
 				if debug {
@@ -386,7 +386,7 @@ func (c *CLI) parseConfigFile() error {
 			}
 			for _, subcmd := range cmd.SubCommands {
 				for _, f := range subcmd.Flags {
-					key := cmd.Name + "." + subcmd.Name + "." +f.GName()
+					key := cmd.Name + "." + subcmd.Name + "." + f.GName()
 					//log.Printf("- looking for %v", key)
 					if tree.Has(key) {
 						err = f.RetrieveConfigValue(tree, key)
@@ -431,7 +431,7 @@ func (c *CLI) Parse() error {
 	c.buildFlags(flag.CommandLine, c.Flgs, nil)
 
 	//log.Println("passed parameters: ", os.Args[1:])
-	for _,v := range os.Args[1:] {
+	for _, v := range os.Args[1:] {
 		if v == "--generate-bash-completion" {
 			GenerateBashCompletion = true
 		}
@@ -514,9 +514,15 @@ func (c *CLI) Parse() error {
 	}
 
 	if Debug && !GenerateBashCompletion {
+		ng.Logln(ng.DEBUG, "**** Start Global Flags ****")
+		ng.DisableTimestamp()
+		ng.DisableTextQuoting()
 		for _, f := range c.Flgs {
-			fmt.Printf("Flag '%s': %v\n", f.GName(), f.GVariableToString())
+			ng.Printf("Flag '%s': %v", f.GName(), f.GVariableToString())
 		}
+		ng.EnableTextQuoting()
+		ng.EnableTimestamp()
+		ng.Logln(ng.DEBUG, "**** End Global Flags ****")
 	}
 
 	// Process input
@@ -642,7 +648,12 @@ func (c *CLI) Parse() error {
 			return err
 		}
 	} else {
-		fmt.Println("!!! no command set to run")
+		ng.DisableTimestamp()
+		ng.DisableTextQuoting()
+		ng.Println(ng.Red("!!! no command set to run"))
+		ng.EnableTextQuoting()
+		ng.EnableTimestamp()
+
 	}
 	return nil
 }
@@ -786,12 +797,12 @@ func (c *CLI) flagSetUsage() {
 	byt.WriteString("Usage of ")
 	byt.WriteString(c.cur.Name)
 	byt.WriteString(":\t")
-	byt.WriteString("("+c.cur.Usage+")\n")
-	for i,sc := range c.cur.SubCommands {
+	byt.WriteString("(" + c.cur.Usage + ")\n")
+	for i, sc := range c.cur.SubCommands {
 		if i > 0 {
 			byt.WriteString(",")
 		}
-		byt.WriteString("  "+sc.Name)
+		byt.WriteString("  " + sc.Name)
 	}
 
 	for _, f := range c.cur.Flags {
