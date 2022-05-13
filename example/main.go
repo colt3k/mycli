@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/colt3k/utils/version"
 	"os"
 	"path/filepath"
-
-	"github.com/colt3k/utils/version"
 
 	log "github.com/colt3k/nglog/ng"
 	"github.com/colt3k/utils/file"
@@ -25,16 +24,16 @@ const (
 )
 
 var (
-	logDir  = file.HomeFolder()
-	logfile                                       = filepath.Join(logDir, appName+".log")
-	t                                             bool
-	capture, protocol, path, url, applicationName string
-	port, t2, t3, t4                              int64
-	countStringList                               mycli.StringList
-	c                                             *mycli.CLI
-	clients                                       custom.Clients
-	l                                             *lock.Lock
-	locked                                        bool
+	logDir                                           = file.HomeFolder()
+	logfile                                          = filepath.Join(logDir, appName+".log")
+	t                                                bool
+	capture, protocol, path, url, appName1, appName2 string
+	port, t2, t3, t4, t5                             int64
+	countStringList                                  mycli.StringList
+	c                                                *mycli.CLI
+	clients                                          custom.Clients
+	l                                                *lock.Lock
+	locked                                           bool
 )
 
 func init() {
@@ -108,13 +107,13 @@ func setupFlags() {
 
 	c.Cmds = []*mycli.CLICommand{
 		{
-			Name:           "server",
-			ShortName:      "s",
-			Usage:          "use as a server",
-			Value:          nil,
-			Action:         func() { runAsServer() },
-			PreAction:      func() { checkDebug("cmd") },
-			PostAction:     nil,
+			Name:       "server",
+			ShortName:  "s",
+			Usage:      "use as a server",
+			Value:      nil,
+			Action:     func() { runAsServer() },
+			PreAction:  func() { checkDebug("cmd") },
+			PostAction: nil,
 			Flags: []mycli.CLIFlag{
 				&mycli.StringFlg{Variable: &protocol, Name: "protocol", ShortName: "proto", Usage: "Set Protocol http(s)", Value: "http"},
 				// if value is set and required passed in value has to be different or it will think it wasn't set
@@ -122,13 +121,13 @@ func setupFlags() {
 			},
 		},
 		{
-			Name:           "client",
-			ShortName:      "c",
-			Usage:          "use as a client",
-			Value:          nil,
-			Action:         func() { runAsClient() },
-			PreAction:      func() { checkDebug("cmd") },
-			PostAction:     nil,
+			Name:       "client",
+			ShortName:  "c",
+			Usage:      "use as a client",
+			Value:      nil,
+			Action:     func() { runAsClient() },
+			PreAction:  func() { checkDebug("cmd") },
+			PostAction: nil,
 			Flags: []mycli.CLIFlag{
 				&mycli.Int64Flg{Variable: &t3, Name: "port", ShortName: "p", Usage: "Change client port", Value: 8080, Required: true},
 			},
@@ -140,8 +139,8 @@ func setupFlags() {
 			Hidden:   true,
 		},
 		{
-			Name:           "weserve",
-			Usage:          "use as a client",
+			Name:  "weserve",
+			Usage: "use as a client",
 			SubCommands: []*mycli.CLICommand{
 				{
 					Name:      "config",
@@ -152,7 +151,7 @@ func setupFlags() {
 					},
 					Flags: []mycli.CLIFlag{
 						&mycli.Int64Flg{Variable: &t4, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
-						&mycli.StringFlg{Variable: &applicationName, Name: "application", Usage: "Select application name", Required: true, Options: opts},
+						&mycli.StringFlg{Variable: &appName1, Name: "application", Usage: "Select application name", Required: true, Options: opts},
 					},
 				},
 				{
@@ -163,8 +162,8 @@ func setupFlags() {
 						log.Println("ran clients cmdline")
 					},
 					Flags: []mycli.CLIFlag{
-						&mycli.Int64Flg{Variable: &t4, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
-						&mycli.StringFlg{Variable: &applicationName, Name: "application", ShortName: "a", Usage: "Select application name", Required: true, Options: opts},
+						&mycli.Int64Flg{Variable: &t5, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
+						&mycli.StringFlg{Variable: &appName2, Name: "application", ShortName: "a", Usage: "Select application name", Required: true, Options: opts},
 					},
 				},
 			},
@@ -177,7 +176,10 @@ func setupFlags() {
 			l.Unlock()
 			log.Logln(log.DEBUG, "unlocked")
 		}
-		log.Logf(log.FATAL, "error(s)\n%+v", err)
+		//log.Logln(log.ERROR, "***** printing stack trace *****")
+		//stackInfo := debug.Stack()
+		//log.Logf(log.FATAL, "%v\n%v", err, string(stackInfo))
+		log.Logf(log.FATAL, "%v", err)
 	}
 }
 

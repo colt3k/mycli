@@ -7,8 +7,6 @@ import (
 	"os"
 	"reflect"
 	"strings"
-
-	"github.com/pelletier/go-toml"
 )
 
 type VarFlg struct {
@@ -26,7 +24,7 @@ type VarFlg struct {
 	Options       []StringList
 	Hidden        bool
 	debug         bool
-	debugLevel	  int64
+	debugLevel    int64
 }
 
 func (c *VarFlg) BuildFlag(flgSet *flag.FlagSet) {
@@ -90,16 +88,13 @@ func (c *VarFlg) RetrieveEnvValue() error {
 	}
 	return nil
 }
-func (c *VarFlg) RetrieveConfigValue(val interface{}, name string) error {
+func (c *VarFlg) RetrieveConfigValue(val map[string]interface{}, name string) error {
 	var curVal StringList
 	//name := c.Command + "." + c.Name
 	//if len(c.Command) == 0 {
 	//	name = c.Name
 	//}
-	switch val.(type) {
-	case *toml.Tree:
-		curVal = val.(*toml.Tree).Get(name).(StringList)
-	}
+	curVal = val[name].(StringList)
 	fld := c.Variable.(*StringList)
 	if fld.String() == c.Value.String() {
 		if c.debug {

@@ -6,8 +6,6 @@ import (
 	"os"
 	"reflect"
 	"strconv"
-
-	"github.com/pelletier/go-toml"
 )
 
 type Float64Flg struct {
@@ -25,7 +23,7 @@ type Float64Flg struct {
 	Options       []float64
 	Hidden        bool
 	debug         bool
-	debugLevel	  int64
+	debugLevel    int64
 }
 
 func (c *Float64Flg) BuildFlag(flgSet *flag.FlagSet) {
@@ -91,16 +89,13 @@ func (c *Float64Flg) RetrieveEnvValue() error {
 	}
 	return nil
 }
-func (c *Float64Flg) RetrieveConfigValue(val interface{}, name string) error {
+func (c *Float64Flg) RetrieveConfigValue(val map[string]interface{}, name string) error {
 	var curVal float64
 	//name := c.Command + "." + c.Name
 	//if len(c.Command) == 0 {
 	//	name = c.Name
 	//}
-	switch val.(type) {
-	case *toml.Tree:
-		curVal = val.(*toml.Tree).Get(name).(float64)
-	}
+	curVal = val[name].(float64)
 	fld := c.Variable.(*float64)
 	if *fld == c.Value {
 		if c.debug {

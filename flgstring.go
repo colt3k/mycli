@@ -6,8 +6,6 @@ import (
 	"os"
 	"reflect"
 	"strings"
-
-	"github.com/pelletier/go-toml"
 )
 
 type StringFlg struct {
@@ -25,7 +23,7 @@ type StringFlg struct {
 	Options       []string
 	Hidden        bool
 	debug         bool
-	debugLevel	  int64
+	debugLevel    int64
 }
 
 func (c *StringFlg) BuildFlag(flgSet *flag.FlagSet) {
@@ -84,17 +82,13 @@ func (c *StringFlg) RetrieveEnvValue() error {
 	}
 	return nil
 }
-func (c *StringFlg) RetrieveConfigValue(val interface{}, name string) error {
+func (c *StringFlg) RetrieveConfigValue(val *TomlWrapper, name string) error {
 	var curVal string
 	//name := c.Command + "." + c.Name
 	//if len(c.Command) == 0 {
 	//	name = c.Name
 	//}
-	switch val.(type) {
-	case *toml.Tree:
-		curVal = val.(*toml.Tree).Get(name).(string)
-	}
-
+	curVal = val.Get(name).(string)
 	fld := c.Variable.(*string)
 	if *fld == c.Value {
 		if c.debug {

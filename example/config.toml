@@ -14,6 +14,10 @@ port=1099
 [hideme]
 myprotocol="https"
 
+[[weserve]]
+  [weserve.config]
+    application = "gc"
+
 [[clients]]
   name = "host1"
 
@@ -35,3 +39,4 @@ myprotocol="https"
 
   [clients.cert]
     certpath = "/some/path/to/cert2"
+

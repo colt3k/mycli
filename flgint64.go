@@ -8,8 +8,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/pelletier/go-toml"
 )
 
 type Int64Flg struct {
@@ -21,14 +19,15 @@ type Int64Flg struct {
 	EnvVar        string
 	EnvVarExclude bool
 	Value         int64
-	CommaSepVal bool
+	CommaSepVal   bool
 	Required      bool
 	Action        interface{}
 	Options       []int64
 	Hidden        bool
 	debug         bool
-	debugLevel	  int64
+	debugLevel    int64
 }
+
 func (c *Int64Flg) BuildFlag(flgSet *flag.FlagSet) {
 	fld := c.Variable.(*int64)
 	flgSet.Int64Var(fld, c.Name, c.Value, c.Usage)
@@ -87,7 +86,7 @@ func (c *Int64Flg) RetrieveEnvValue() error {
 			*fld, err = strconv.ParseInt(envVal, 10, 64)
 			if err != nil {
 				if strings.Index(err.Error(), "invalid syntax") > -1 {
-					return fmt.Errorf("invalid value for '%s' flag value: '%s'",c.Name,envVal)
+					return fmt.Errorf("invalid value for '%s' flag value: '%s'", c.Name, envVal)
 				}
 				return err
 			}
@@ -95,16 +94,13 @@ func (c *Int64Flg) RetrieveEnvValue() error {
 	}
 	return nil
 }
-func (c *Int64Flg) RetrieveConfigValue(val interface{}, name string) error {
+func (c *Int64Flg) RetrieveConfigValue(val *TomlWrapper, name string) error {
 	var curVal int64
 	//name := c.Command+"."+c.Name
 	//if len(c.Command) == 0 {
 	//	name = c.Name
 	//}
-	switch val.(type) {
-	case *toml.Tree:
-		curVal = val.(*toml.Tree).Get(name).(int64)
-	}
+	curVal = val.Get(name).(int64)
 	fld := c.Variable.(*int64)
 	if *fld == c.Value {
 		if c.debug {

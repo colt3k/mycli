@@ -6,8 +6,6 @@ import (
 	"os"
 	"reflect"
 	"strconv"
-
-	"github.com/pelletier/go-toml"
 )
 
 type BoolFlg struct {
@@ -25,7 +23,7 @@ type BoolFlg struct {
 	Options       []bool
 	Hidden        bool
 	debug         bool
-	debugLevel	  int64
+	debugLevel    int64
 }
 
 func (c *BoolFlg) BuildFlag(flgSet *flag.FlagSet) {
@@ -91,16 +89,14 @@ func (c *BoolFlg) RetrieveEnvValue() error {
 	}
 	return nil
 }
-func (c *BoolFlg) RetrieveConfigValue(val interface{}, name string) error {
+func (c *BoolFlg) RetrieveConfigValue(val *TomlWrapper, name string) error {
 	var curVal bool
 	//name := c.Command + "." + c.Name
 	//if len(c.Command) == 0 {
 	//	name = c.Name
 	//}
-	switch val.(type) {
-	case *toml.Tree:
-		curVal = val.(*toml.Tree).Get(name).(bool)
-	}
+
+	curVal = val.Get(name).(bool)
 	fld := c.Variable.(*bool)
 	if *fld == c.Value {
 		if c.debug {

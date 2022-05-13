@@ -11,8 +11,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pelletier/go-toml"
-
 	"github.com/colt3k/nglog/ng"
 )
 
@@ -67,9 +65,8 @@ type CLICommand struct {
 type Commands []*CLICommand
 
 // Convert this section to a JSON string
-func (c *CLICommand) RetrieveConfigValue(val interface{}, name string) error {
-	treeMap := val.(*toml.Tree).ToMap()
-	valS := treeMap[c.Name]
+func (c *CLICommand) RetrieveConfigValue(val *TomlWrapper, name string) error {
+	valS := val.Get(c.Name)
 	wrapper := make(map[string]interface{}, 1)
 	wrapper[c.Name] = valS
 	bytes, err := json.MarshalIndent(wrapper, "", "  ")
@@ -347,7 +344,7 @@ func (c *CLI) parseConfigFile() error {
 	}
 	if len(strings.TrimSpace(configfile)) > 0 {
 		configfile = FixPath(configfile)
-		tree, err := LoadToml(configfile)
+		err := Toml().LoadToml(configfile)
 		if err != nil {
 			log.Printf("!!! issue loading config toml file %v\n", err)
 			return err
@@ -355,8 +352,8 @@ func (c *CLI) parseConfigFile() error {
 		// find any missing values and set them from the tree
 		for _, f := range c.Flgs {
 			key := f.GName()
-			if tree.Has(key) {
-				err = f.RetrieveConfigValue(tree, key)
+			if Toml().Has(key) {
+				err = f.RetrieveConfigValue(Toml(), key)
 				if Err(err) {
 					log.Printf("!!! issue retrieving flag value from config toml file %v\n", err)
 					return err
@@ -373,8 +370,8 @@ func (c *CLI) parseConfigFile() error {
 		for _, cmd := range c.Cmds {
 			for _, f := range cmd.Flags {
 				key := cmd.Name + "." + f.GName()
-				if tree.Has(key) {
-					err = f.RetrieveConfigValue(tree, key)
+				if Toml().Has(key) {
+					err = f.RetrieveConfigValue(Toml(), key)
 					if Err(err) {
 						log.Printf("!!! issue retrieving command value from config toml file %v\n", err)
 						return err
@@ -388,8 +385,8 @@ func (c *CLI) parseConfigFile() error {
 				for _, f := range subcmd.Flags {
 					key := cmd.Name + "." + subcmd.Name + "." + f.GName()
 					//log.Printf("- looking for %v", key)
-					if tree.Has(key) {
-						err = f.RetrieveConfigValue(tree, key)
+					if Toml().Has(key) {
+						err = f.RetrieveConfigValue(Toml(), key)
 						if Err(err) {
 							log.Printf("!!! issue retrieving command value from config toml file %v\n", err)
 							return err
@@ -400,9 +397,9 @@ func (c *CLI) parseConfigFile() error {
 					}
 				}
 			}
-			if cmd.Hidden && tree.Has(cmd.Name) {
+			if cmd.Hidden && Toml().Has(cmd.Name) {
 				key := cmd.Name
-				err = cmd.RetrieveConfigValue(tree, key)
+				err = cmd.RetrieveConfigValue(Toml(), key)
 				if Err(err) {
 					log.Printf("!!! issue retrieving config value from config toml file %v\n", err)
 					return err
@@ -631,6 +628,19 @@ func (c *CLI) Parse() error {
 			}
 		}
 
+		if activeCmd.Action == nil {
+			if len(activeCmd.SubCommands) > 0 {
+				var bytAct bytes.Buffer
+				bytAct.WriteString(fmt.Sprintf("No action on %v command\n", activeCmd.Name))
+				bytAct.WriteString(" - SubCommands available:\n")
+				for _, p := range activeCmd.SubCommands {
+					bytAct.WriteString(fmt.Sprintf("\t%v\n", p.Name))
+				}
+				return fmt.Errorf("%v", bytAct.String())
+			} else {
+				return fmt.Errorf("no action type defined")
+			}
+		}
 		err = runAction(activeCmd.Action)
 		if err != nil {
 			return err

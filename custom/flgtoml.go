@@ -9,8 +9,6 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/pelletier/go-toml"
-
 	"github.com/colt3k/mycli"
 )
 
@@ -77,7 +75,7 @@ type TomlFlg struct {
 	Options       []Clients
 	Hidden        bool
 	debug         bool
-	debugLevel	  int64
+	debugLevel    int64
 	Command       string
 }
 
@@ -183,9 +181,9 @@ func (c *TomlFlg) RetrieveEnvValue() error {
 }
 
 // RetrieveConfigValue get config value for flag
-func (c *TomlFlg) RetrieveConfigValue(val interface{}, name string) error {
-	treeMap := val.(*toml.Tree).ToMap()
-	valS := treeMap[c.Name]
+func (c *TomlFlg) RetrieveConfigValue(val *mycli.TomlWrapper, name string) error {
+
+	valS := val.Get(c.Name)
 	wrapper := make(map[string]interface{}, 1)
 	wrapper[c.Name] = valS
 	bytes, err := json.MarshalIndent(wrapper, "", "  ")

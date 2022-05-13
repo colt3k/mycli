@@ -24,7 +24,7 @@ type CLIFlag interface {
 	GVariableToString() string
 	Kind() error
 	RetrieveEnvValue() error
-	RetrieveConfigValue(val interface{}, name string) error
+	RetrieveConfigValue(val *TomlWrapper, name string) error
 	RequiredAndNotSet() bool
 	SetDebug(bool)
 	SetDebugLevel(int64)
@@ -55,6 +55,7 @@ func (c *CLI) requiredMessaging(subCmd string, f CLIFlag) {
 	}
 	fmt.Println()
 }
+
 // retrieveEnvVal if not set on commandline pull from environment
 func (c *CLI) retrieveEnvVal(glblFlgs []CLIFlag) error {
 	for _, f := range glblFlgs {

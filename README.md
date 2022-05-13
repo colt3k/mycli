@@ -1,5 +1,7 @@
 # MyCLI
 
+  - NOTE: Ensure you don't reuse variables unless you want the value assigned copied to other commands
+
   Abilities
   - toml configuration file
 
@@ -35,3 +37,9 @@ Order of precedence on values
    - 2. environment
    - 3. config file
    - 4. defaults     (lowest priority)
+
+Testing using example
+    - 1. go run main.go -c config.toml server
+    - 2. go run main.go -c config.toml client
+    - 3. go run main.go -c config.toml weserve cmdln
+    - 4. go run main.go -c config.toml weserve config
