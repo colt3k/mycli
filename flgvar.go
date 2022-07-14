@@ -27,8 +27,22 @@ type VarFlg struct {
 	debugLevel    int64
 }
 
-func (c *VarFlg) BuildFlag(flgSet *flag.FlagSet) {
+func (c *VarFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr) {
 	fld := c.Variable.(*StringList)
+	// Map Any Duplicate Pointer issues for Variables and warn user
+	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
+		// Don't add same thing twice
+		if v[0].FieldName != c.Name || v[0].Command != c.Command {
+			// found add to array
+			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
+			varMap[fmt.Sprintf("%p", c.Variable)] = v
+		}
+	} else {
+		// create array
+		t := make([]FieldPtr, 0)
+		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
+		varMap[fmt.Sprintf("%p", c.Variable)] = t
+	}
 	flgSet.Var(fld, c.Name, c.Usage)
 	if len(c.ShortName) > 0 {
 		flgSet.Var(fld, c.ShortName, c.Usage)

@@ -33,7 +33,7 @@ type CLIFlag interface {
 	GCommaSepVal() bool
 	ValueAsString() string
 	GCommand(string)
-	BuildFlag(*flag.FlagSet)
+	BuildFlag(*flag.FlagSet, map[string][]FieldPtr)
 	UnquotedUsage() string
 }
 

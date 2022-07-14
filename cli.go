@@ -31,6 +31,11 @@ var (
 	GenerateBashCompletion bool
 )
 
+type FieldPtr struct {
+	FieldName string
+	Address   string
+	Command   string
+}
 type CLICommand struct {
 	// Name of the command and passed for use
 	Name string
@@ -132,6 +137,8 @@ func (f *Fatal) PrintNoticeSubCmd(name, cmd string) {
 // CLI command line struct
 type CLI struct {
 	*AppInfo
+	// Default Flags for Reference Only these are in Flgs for actual use
+	DefFlags []CLIFlag
 	// Flgs location to set all global flags
 	Flgs []CLIFlag
 	// Cmds global commands your application supports
@@ -152,10 +159,12 @@ type CLI struct {
 	// EnvPrefix a prefix you can define to use on Environment Variables for values used in the application default "T"
 	EnvPrefix string
 	// TestMode reserved for internal testing
-	TestMode             bool
-	fatalAdapter         FatalAdapter
-	usageAdapter         UsageAdapter
-	help, debug, version bool
+	TestMode              bool
+	fatalAdapter          FatalAdapter
+	usageAdapter          UsageAdapter
+	help, debug, version  bool
+	varMap                map[string][]FieldPtr
+	DisableFlagValidation bool
 }
 
 // NewCli creates an instance of the CLI application
@@ -176,6 +185,7 @@ func NewCli(f FatalAdapter, u UsageAdapter) *CLI {
 	t.Writer = os.Stdout
 	t.Flgs = make([]CLIFlag, 0)
 	t.Cmds = make([]*CLICommand, 0)
+	t.varMap = make(map[string][]FieldPtr, 0)
 
 	t.VersionPrint = func() {
 		fmt.Printf("\nversion=%s build=%s revision=%s goversion=%s\n\n", a.Version, a.BuildDate, a.GitCommit, a.GoVersion)
@@ -219,6 +229,8 @@ func (c *CLI) addDefaultFlags() {
 			dfFlgs = append(dfFlgs, f)
 		}
 	}
+	c.DefFlags = dfFlgs
+	// Adding any Global Flags defined to our default Flags
 	for _, d := range c.Flgs {
 		dfFlgs = append(dfFlgs, d)
 	}
@@ -457,6 +469,9 @@ func (c *CLI) Parse() error {
 	ResetForTesting(nil)
 	c.buildFlags(flag.CommandLine, c.Flgs, nil)
 	c.buildCmds()
+	if !c.DisableFlagValidation {
+		c.validateVariables()
+	}
 
 	//log.Println("passed parameters: ", os.Args[1:])
 	flag.Parse()
@@ -783,7 +798,7 @@ func (c *CLI) buildFlags(flgSet *flag.FlagSet, flgs []CLIFlag, cm *CLICommand) {
 		if cm != nil {
 			f.GCommand(cm.Name)
 		}
-		f.BuildFlag(flgSet)
+		f.BuildFlag(flgSet, c.varMap)
 	}
 }
 
@@ -798,6 +813,37 @@ func (c *CLI) buildCmds() {
 			d.SubCommands[j].FS = tmpCommand
 			c.buildFlags(tmpCommand, k.Flags, k)
 		}
+	}
+}
+
+func (c *CLI) validateVariables() {
+	// msg := fmt.Sprintf("Address of Variable for '%v' in command '%v' - at '%p'", c.Name, c.Command, c.Variable)
+	warned := false
+
+	for _, y := range c.varMap {
+		if len(y) > 1 {
+			defaultSkip := false
+			// We capture globals only to compare against all others, don't display Global issue
+			for _, x := range c.DefFlags {
+				// If Global and Name matches a default
+				if len(y[0].Command) == 0 && y[0].FieldName == x.GName() {
+					defaultSkip = true
+				}
+			}
+			// Not a default show issue
+			if defaultSkip {
+				continue
+			}
+			fmt.Println()
+			fmt.Println("!!!!!!!! WARNING !!!!!!!!!!!!!")
+			for _, m := range y {
+				fmt.Printf("Multiple(%vx) use on \"Address of Variable for '%v' in command '%v' at '%v'\"\n", len(y), m.FieldName, m.Command, m.Address)
+			}
+			warned = true
+		}
+	}
+	if warned {
+		fmt.Println()
 	}
 }
 

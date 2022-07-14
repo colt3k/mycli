@@ -2,6 +2,7 @@ package mycli
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"reflect"
@@ -26,8 +27,27 @@ type StringFlg struct {
 	debugLevel    int64
 }
 
-func (c *StringFlg) BuildFlag(flgSet *flag.FlagSet) {
+func (c *StringFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr) {
 	fld := c.Variable.(*string)
+	// Map Any Duplicate Pointer issues for Variables and warn user
+	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
+		// Don't add same thing twice
+		if v[0].FieldName != c.Name || v[0].Command != c.Command {
+			// found add to array
+			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
+			varMap[fmt.Sprintf("%p", c.Variable)] = v
+		}
+	} else {
+		// create array
+		t := make([]FieldPtr, 0)
+		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
+		varMap[fmt.Sprintf("%p", c.Variable)] = t
+	}
+	//if len(c.Command) > 0 {
+	//	fmt.Printf("Address of %v in command %v - %p\n", c.Name, c.Command, c.Variable)
+	//} else {
+	//	fmt.Printf("Address of GLOBAL %v - %p\n", c.Name, c.Variable)
+	//}
 	flgSet.StringVar(fld, c.Name, c.Value, c.Usage)
 	if len(c.ShortName) > 0 {
 		flgSet.StringVar(fld, c.ShortName, c.Value, c.Usage)

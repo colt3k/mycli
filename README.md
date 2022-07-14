@@ -43,3 +43,9 @@ Testing using example
     - 2. go run main.go -c config.toml client
     - 3. go run main.go -c config.toml weserve cmdln
     - 4. go run main.go -c config.toml weserve config
+
+Warning on Reuse of Variables across Commands
+- When a variable is reused on different commands a warning is displayed
+  - this will help inform you that the value could be overridden unexpectedly
+  DISABLE by setting in your declaration
+  - cli.DisableFlagValidation = true
