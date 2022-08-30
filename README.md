@@ -1,7 +1,5 @@
 # MyCLI
 
-  - NOTE: Ensure you don't reuse variables unless you want the value assigned copied to other commands
-
   Abilities
   - toml configuration file
 
