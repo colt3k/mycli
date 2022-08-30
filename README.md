@@ -112,7 +112,61 @@
     - string
     - uint64
     - toml
-  - Flag Attriburtes
+  - Help
+          
+         Example
+         $ main -h
+         NAME:
+           main
+
+         USAGE:
+           main [global options] command [command options] [arguments...]
+
+         GLOBAL OPTIONS:
+           -debug, -d
+                 flag set to debug (default false)
+
+           -debugLevel, -dbglvl  int
+                 set debug level (default 0)
+
+           -config, -c  string
+                 config file path
+
+           -proxyhttp  string
+               HTTP_PROXY  (as environment var)
+                 Sets http_proxy for network connections
+
+           -proxyhttps  string
+               HTTPS_PROXY (as environment var)
+                 Sets https_proxy for network connections
+
+           -noproxy  string
+               NO_PROXY    (as environment var)
+                 Sets no_proxy for network connections
+
+           -log_dir, -ld  string
+                 override logging directory
+
+         COMMANDS:
+           update:    (check for updates)
+
+           serve:     (start server)
+               -port, -p  int
+                   Set port (default 8081)
+
+           client:    (use as a client)
+
+             Sub Commands:
+               config :  use config file
+                 -port, -p  int
+                    Set Port (default 9111)
+
+               cmdln :   use command line
+                -port, -p  int
+                    Set Port (default 9111)
+
+
+  - Flag Attributes
     - required flag
 
           EXAMPLE
