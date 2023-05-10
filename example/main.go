@@ -97,7 +97,10 @@ func setupFlags() {
 	c.Copyright = copyright
 	c.MainAction = func() { fmt.Println("Main Action Ran, no other commands set") }
 	c.PostGlblAction = func() error { return setLogger() }
-	//c.EnvPrefix = "T"
+	// Enable Environment VARs, default is disabled
+	//c.DisableEnvVars = false
+	// remove Prefix default of "T" or change to your own
+	//c.EnvPrefix = ""
 	c.Flgs = []mycli.CLIFlag{
 		&mycli.StringFlg{Variable: &capture, Name: "capture", ShortName: "cap", Usage: "Used to test string", Options: []string{"hello", "bye"}},
 		&mycli.StringFlg{Variable: &path, Name: "path", Usage: "Used to test path with slash"},
