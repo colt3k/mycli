@@ -7,6 +7,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 type Uint64Flg struct {
@@ -98,19 +99,22 @@ func (c *Uint64Flg) RetrieveEnvValue() error {
 			var err error
 			*fld, err = strconv.ParseUint(envVal, 10, 64)
 			if err != nil {
+				if strings.Index(err.Error(), "invalid syntax") > -1 {
+					return fmt.Errorf("invalid value for '%s' flag value: '%s'", c.Name, envVal)
+				}
 				return err
 			}
 		}
 	}
 	return nil
 }
-func (c *Uint64Flg) RetrieveConfigValue(val map[string]interface{}, name string) error {
+func (c *Uint64Flg) RetrieveConfigValue(val *TomlWrapper, name string) error {
 	var curVal uint64
 	//name := c.Command + "." + c.Name
 	//if len(c.Command) == 0 {
 	//	name = c.Name
 	//}
-	curVal = val[name].(uint64)
+	curVal = val.Get(name).(uint64)
 	fld := c.Variable.(*uint64)
 	if *fld == c.Value {
 		if c.debug {
@@ -134,6 +138,7 @@ func (c *Uint64Flg) GCommaSepVal() bool {
 	return false
 }
 func (c *Uint64Flg) ValidValue() bool {
+	// if passed in and has options then validate value is in options
 	if len(c.Options) > 0 && c.Value != *c.Variable.(*uint64) {
 		for _, d := range c.Options {
 			if d == *c.Variable.(*uint64) {

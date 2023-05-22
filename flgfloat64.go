@@ -104,13 +104,13 @@ func (c *Float64Flg) RetrieveEnvValue() error {
 	}
 	return nil
 }
-func (c *Float64Flg) RetrieveConfigValue(val map[string]interface{}, name string) error {
+func (c *Float64Flg) RetrieveConfigValue(val *TomlWrapper, name string) error {
 	var curVal float64
 	//name := c.Command + "." + c.Name
 	//if len(c.Command) == 0 {
 	//	name = c.Name
 	//}
-	curVal = val[name].(float64)
+	curVal = val.Get(name).(float64)
 	fld := c.Variable.(*float64)
 	if *fld == c.Value {
 		if c.debug {
@@ -134,7 +134,7 @@ func (c *Float64Flg) GCommaSepVal() bool {
 	return false
 }
 func (c *Float64Flg) ValidValue() bool {
-
+	// if passed in and has options then validate value is in options
 	if len(c.Options) > 0 && c.Value != *c.Variable.(*float64) {
 		for _, d := range c.Options {
 			if d == *c.Variable.(*float64) {

@@ -28,7 +28,8 @@ var (
 	logfile                                          = filepath.Join(logDir, appName+".log")
 	t                                                bool
 	capture, protocol, path, url, appName1, appName2 string
-	port, t2, t3, t4, t5                             int64
+	t3, t4, t5                                       int64
+	t2                                               uint64
 	countStringList                                  mycli.StringList
 	c                                                *mycli.CLI
 	clients                                          custom.Clients
@@ -120,7 +121,7 @@ func setupFlags() {
 			Flags: []mycli.CLIFlag{
 				&mycli.StringFlg{Variable: &protocol, Name: "protocol", ShortName: "proto", Usage: "Set Protocol http(s)", Value: "http"},
 				// if value is set and required passed in value has to be different or it will think it wasn't set
-				&mycli.Int64Flg{Variable: &t2, Name: "port", ShortName: "p", Usage: "Change server port", Value: 8080},
+				&mycli.Uint64Flg{Variable: &t2, Name: "port", ShortName: "p", Usage: "Change server port", Value: 8080},
 			},
 		},
 		{

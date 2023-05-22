@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/colt3k/nglog/ng"
 )
@@ -425,39 +426,97 @@ func (c *CLI) parseConfigFile() error {
 	return nil
 }
 func (c *CLI) Parse() error {
-
+	c.debug = true
 	// add default flags, help, debug, debuglevel, version, config
+	var start time.Time
+	if c.debug {
+		start = time.Now()
+	}
 	c.addDefaultFlags()
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("addDefaultFlags: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
+	}
 	// Disable all Env Variables
 	if !c.DisableEnvVars {
 		c.SetupEnvVars()
+	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("setupEnvVars: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
 	}
 	err := c.ValidateFlgKind()
 	if err != nil {
 		log.Fatalf("issue validating flag kind\n%+v", err)
 	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("ValidateFlgKind: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
+	}
 	// Pre process Global Flags
 	c.buildFlags(flag.CommandLine, c.Flgs, nil)
-
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("buildFlags: %v\n", duration)
+	}
 	//log.Println("passed parameters: ", os.Args[1:])
+	if c.debug {
+		start = time.Now()
+	}
 	for _, v := range os.Args[1:] {
 		if v == "--generate-bash-completion" {
 			GenerateBashCompletion = true
 		}
 	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("lookFor Bash Flag: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
+	}
 	flag.Parse()
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("flag.Parse: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
+	}
 	err = c.retrieveEnvVal(c.Flgs)
 	if Err(err) {
 		return err
 	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("retrieveEnvVal: %v\n", duration)
+	}
 
 	// loop Flags and find environment values, if not set on commandline set value to ENV value
-
+	if c.debug {
+		start = time.Now()
+	}
 	if c.PostGlblAction != nil {
 		err = runAction(c.PostGlblAction)
 		if err != nil {
 			return err
 		}
+	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("runAction PostGlblAction: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
 	}
 	if c.version && c.VersionPrint != nil {
 		err = runAction(c.VersionPrint)
@@ -465,30 +524,85 @@ func (c *CLI) Parse() error {
 			return err
 		}
 	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("print version: %v\n", duration)
+	}
 	//Reset and Process Global and Commands
+	if c.debug {
+		start = time.Now()
+	}
 	ResetForTesting(nil)
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("ResetForTesting: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
+	}
 	c.buildFlags(flag.CommandLine, c.Flgs, nil)
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("c.buildFlags: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
+	}
 	c.buildCmds()
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("c.buildCmds: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
+	}
 	if !c.DisableFlagValidation {
 		c.validateVariables()
 	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("c.validateVariables: %v\n", duration)
+	}
 
 	//log.Println("passed parameters: ", os.Args[1:])
+	if c.debug {
+		start = time.Now()
+	}
 	flag.Parse()
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("flag.Parse: %v\n", duration)
+	}
 
 	//retrieve environment values if set and flag wasn't passed
+	if c.debug {
+		start = time.Now()
+	}
 	err = c.retrieveEnvVal(c.Flgs)
 	if Err(err) {
 		return err
 	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("c.retrieveEnvVal: %v\n", duration)
+	}
 
+	if c.debug {
+		start = time.Now()
+	}
 	for _, d := range c.Cmds {
 		err = c.retrieveEnvVal(d.Flags)
 		if Err(err) {
 			return err
 		}
 	}
-
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("for loop c.retrieveEnvVal: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
+	}
 	for _, d := range c.Cmds {
 		for _, q := range d.SubCommands {
 			err = c.retrieveEnvVal(q.Flags)
@@ -497,23 +611,55 @@ func (c *CLI) Parse() error {
 			}
 		}
 	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("for loop c.Cmds c.retrieveEnvVals: %v\n", duration)
+	}
 
 	// anything not set use config file to set it
+	if c.debug {
+		start = time.Now()
+	}
 	err = c.parseConfigFile()
 	if Err(err) {
 		return err
 	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("c.parseConfigFile: %v\n", duration)
+	}
 
+	if c.debug {
+		start = time.Now()
+	}
 	c.checkRequired("", c.Flgs) // see if required ones are set
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("c.checkRequired: %v\n", duration)
+	}
+	if c.debug {
+		start = time.Now()
+	}
 	if c.help && !GenerateBashCompletion {
 		c.printUsage()
+		if c.debug {
+			duration := time.Since(start)
+			fmt.Printf("c.printUsage: %v\n", duration)
+		}
 		if !c.TestMode {
 			os.Exit(1)
 		}
 	}
+	if c.debug {
+		start = time.Now()
+	}
 	err = c.ValidateValues(false)
 	if Err(err) {
 		return err
+	}
+	if c.debug {
+		duration := time.Since(start)
+		fmt.Printf("c.ValidateValues: %v\n", duration)
 	}
 
 	//check for bash completion flag
