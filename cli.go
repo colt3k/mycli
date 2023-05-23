@@ -166,6 +166,7 @@ type CLI struct {
 	help, debug, version  bool
 	varMap                map[string][]FieldPtr
 	DisableFlagValidation bool
+	ShowDuration          bool
 }
 
 // NewCli creates an instance of the CLI application
@@ -194,6 +195,7 @@ func NewCli(f FatalAdapter, u UsageAdapter) *CLI {
 	t.BashCompletion = BashCompletionMain
 	t.DisableEnvVars = true
 	t.EnvPrefix = "T"
+	t.ShowDuration = false
 	return t
 }
 
@@ -426,55 +428,54 @@ func (c *CLI) parseConfigFile() error {
 	return nil
 }
 func (c *CLI) Parse() error {
-	c.debug = true
 	// add default flags, help, debug, debuglevel, version, config
 	var start time.Time
 	var ttlTime int64
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	c.addDefaultFlags()
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("addDefaultFlags: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	// Disable all Env Variables
 	if !c.DisableEnvVars {
 		c.SetupEnvVars()
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("setupEnvVars: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	err := c.ValidateFlgKind()
 	if err != nil {
 		log.Fatalf("issue validating flag kind\n%+v", err)
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("ValidateFlgKind: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	// Pre process Global Flags
 	c.buildFlags(flag.CommandLine, c.Flgs, nil)
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("buildFlags: %v\n", duration.Nanoseconds())
 	}
 	//log.Println("passed parameters: ", os.Args[1:])
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	for _, v := range os.Args[1:] {
@@ -482,35 +483,35 @@ func (c *CLI) Parse() error {
 			GenerateBashCompletion = true
 		}
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("lookFor Bash Flag: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	flag.Parse()
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("flag.Parse: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	err = c.retrieveEnvVal(c.Flgs)
 	if Err(err) {
 		return err
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("retrieveEnvVal: %v\n", duration.Nanoseconds())
 	}
 
 	// loop Flags and find environment values, if not set on commandline set value to ENV value
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	if c.PostGlblAction != nil {
@@ -519,12 +520,12 @@ func (c *CLI) Parse() error {
 			return err
 		}
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("runAction PostGlblAction: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	if c.version && c.VersionPrint != nil {
@@ -533,77 +534,77 @@ func (c *CLI) Parse() error {
 			return err
 		}
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("print version: %v\n", duration.Nanoseconds())
 	}
 	//Reset and Process Global and Commands
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	ResetForTesting(nil)
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("ResetForTesting: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	c.buildFlags(flag.CommandLine, c.Flgs, nil)
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("c.buildFlags: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	c.buildCmds()
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("c.buildCmds: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	if !c.DisableFlagValidation {
 		c.validateVariables()
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("c.validateVariables: %v\n", duration.Nanoseconds())
 	}
 
 	//log.Println("passed parameters: ", os.Args[1:])
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	flag.Parse()
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("flag.Parse: %v\n", duration.Nanoseconds())
 	}
 
 	//retrieve environment values if set and flag wasn't passed
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	err = c.retrieveEnvVal(c.Flgs)
 	if Err(err) {
 		return err
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("c.retrieveEnvVal: %v\n", duration.Nanoseconds())
 	}
 
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	for _, d := range c.Cmds {
@@ -612,12 +613,12 @@ func (c *CLI) Parse() error {
 			return err
 		}
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("for loop c.retrieveEnvVal: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	for _, d := range c.Cmds {
@@ -628,41 +629,41 @@ func (c *CLI) Parse() error {
 			}
 		}
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("for loop c.Cmds c.retrieveEnvVals: %v\n", duration.Nanoseconds())
 	}
 
 	// anything not set use config file to set it
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	err = c.parseConfigFile()
 	if Err(err) {
 		return err
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("c.parseConfigFile: %v\n", duration.Nanoseconds())
 	}
 
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	c.checkRequired("", c.Flgs) // see if required ones are set
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("c.checkRequired: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	if c.help && !GenerateBashCompletion {
 		c.printUsage()
-		if c.debug {
+		if c.ShowDuration {
 			duration := time.Since(start)
 			ttlTime += duration.Nanoseconds()
 			fmt.Printf("c.printUsage: %v\n", duration.Nanoseconds())
@@ -671,20 +672,20 @@ func (c *CLI) Parse() error {
 			os.Exit(1)
 		}
 	}
-	if c.debug {
+	if c.ShowDuration {
 		start = time.Now()
 	}
 	err = c.ValidateValues(false)
 	if Err(err) {
 		return err
 	}
-	if c.debug {
+	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
 		fmt.Printf("c.ValidateValues: %v\n", duration.Nanoseconds())
 	}
-	if c.debug {
-		fmt.Printf("Total Time: %v in nanoseconds\n", ttlTime)
+	if c.ShowDuration {
+		fmt.Printf("Total Duration: %v in nanoseconds\n", ttlTime)
 	}
 
 	//check for bash completion flag
