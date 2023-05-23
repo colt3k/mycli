@@ -96,6 +96,7 @@ func setupFlags() {
 	c.GoVersion = version.GOVERSION
 	c.Author = author
 	c.Copyright = copyright
+	c.ShowDuration = true
 	c.MainAction = func() { fmt.Println("Main Action Ran, no other commands set") }
 	c.PostGlblAction = func() error { return setLogger() }
 	// Enable Environment VARs, default is disabled
