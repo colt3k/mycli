@@ -906,7 +906,7 @@ func (c *CLI) IsDebug() bool {
 	return Debug
 }
 func (c *CLI) setupDebugLevelFlag() CLIFlag {
-	return &Int64Flg{Variable: &DebugLevel, Name: "debugLevel", ShortName: "dbglvl", Usage: "set debug level", EnvVarExclude: true, Value: 0}
+	return &Int64Flg{Variable: &DebugLevel, Name: "debugLevel", ShortName: "dbglvl", Usage: "set debug level", EnvVar: "DEBUG_LEVEL", Value: 0}
 }
 func (c *CLI) DebugLevel() int64 {
 	return DebugLevel
