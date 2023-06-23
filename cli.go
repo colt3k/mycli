@@ -906,7 +906,10 @@ func (c *CLI) IsDebug() bool {
 	return Debug
 }
 func (c *CLI) setupDebugLevelFlag() CLIFlag {
-	return &Int64Flg{Variable: &DebugLevel, Name: "debugLevel", ShortName: "dbglvl", Usage: "set debug level", EnvVar: "DEBUG_LEVEL", Value: 0}
+	if !c.DisableEnvVars {
+		return &Int64Flg{Variable: &DebugLevel, Name: "debugLevel", ShortName: "dbglvl", Usage: "set debug level", EnvVar: "DEBUG_LEVEL", Value: 0}
+	}
+	return &Int64Flg{Variable: &DebugLevel, Name: "debugLevel", ShortName: "dbglvl", Usage: "set debug level", EnvVarExclude: true, Value: 0}
 }
 func (c *CLI) DebugLevel() int64 {
 	return DebugLevel
@@ -917,9 +920,8 @@ func (c *CLI) setupVersionFlag() CLIFlag {
 func (c *CLI) setupConfigFlag() CLIFlag {
 	if !c.DisableEnvVars {
 		return &StringFlg{Variable: &configfile, Name: "config", ShortName: "c", EnvVar: "config_filepath", Usage: "config file path"}
-	} else {
-		return &StringFlg{Variable: &configfile, Name: "config", ShortName: "c", Usage: "config file path"}
 	}
+	return &StringFlg{Variable: &configfile, Name: "config", ShortName: "c", Usage: "config file path"}
 }
 func (c *CLI) setupProxyFlags() []CLIFlag {
 
@@ -983,7 +985,7 @@ func (c *CLI) buildCmds() {
 		c.Cmds[i].FS = tmpCommand
 		c.buildFlags(tmpCommand, d.Flags, d)
 		for j, k := range d.SubCommands {
-			tmpCommand := flag.NewFlagSet(strings.ToLower(k.Name), doOnError)
+			tmpCommand = flag.NewFlagSet(strings.ToLower(k.Name), doOnError)
 			d.SubCommands[j].FS = tmpCommand
 			c.buildFlags(tmpCommand, k.Flags, k)
 		}
