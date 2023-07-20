@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -70,17 +71,17 @@ type CLICommand struct {
 
 type Commands []*CLICommand
 
-// Convert this section to a JSON string
+// RetrieveConfigValue	TODO Convert this section to a JSON string
 func (c *CLICommand) RetrieveConfigValue(val *TomlWrapper, name string) error {
 	valS := val.Get(c.Name)
 	wrapper := make(map[string]interface{}, 1)
 	wrapper[c.Name] = valS
-	bytes, err := json.MarshalIndent(wrapper, "", "  ")
+	wBytes, err := json.MarshalIndent(wrapper, "", "  ")
 	if err != nil {
 		return err
 	}
 	// set to Variable here so no need to go further as in other types
-	err = json.Unmarshal(bytes, c.Variable)
+	err = json.Unmarshal(wBytes, c.Variable)
 	if err != nil {
 		log.Fatalf("issue unmarshalling\n%+v", err)
 	}
@@ -1030,9 +1031,15 @@ func (c *CLI) flagSetUsage() {
 	byt.WriteString(c.cur.Name)
 	byt.WriteString(":\t")
 	byt.WriteString("(" + c.cur.Usage + ")\n")
-	for i, sc := range c.cur.SubCommands {
+	// create tmp array for sorting
+	subcmds := c.cur.SubCommands
+	// sort array
+	sort.Slice(subcmds, func(i, j int) bool {
+		return subcmds[i].Name < subcmds[j].Name
+	})
+	for i, sc := range subcmds {
 		if i > 0 {
-			byt.WriteString(",")
+			byt.WriteString(",\n")
 		}
 		byt.WriteString("  " + sc.Name)
 	}
@@ -1046,6 +1053,9 @@ func (c *CLI) flagSetUsage() {
 		}
 
 		name := f.UnquotedUsage()
+		if f.GRequired() {
+			name += "\t(REQUIRED_FLAG)"
+		}
 		if len(name) > 0 {
 			s += "  " + name
 		}
