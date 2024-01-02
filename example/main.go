@@ -29,7 +29,7 @@ var (
 	t                                                bool
 	capture, protocol, path, url, appName1, appName2 string
 	t3, t4, t5                                       int64
-	t2                                               uint64
+	t2                                               int64
 	countStringList                                  mycli.StringList
 	c                                                *mycli.CLI
 	clients                                          custom.Clients
@@ -49,8 +49,8 @@ func init() {
 	ca := log.NewConsoleAppender("*")
 	log.Modify(log.LogLevel(log.INFO), log.ColorsOn(), log.Appenders(ca, fa))
 }
-func setLogger() error {
 
+func setLogger() error {
 	if logDir != file.HomeFolder() || mycli.Debug {
 		logfile = filepath.Join(logDir, companyName, appName+".log")
 		// update our logger
@@ -75,8 +75,8 @@ func setLogger() error {
 	}
 	return nil
 }
-func main() {
 
+func main() {
 	setupFlags()
 	if locked {
 		l.Unlock()
@@ -84,8 +84,8 @@ func main() {
 	}
 	os.Exit(0)
 }
-func setupFlags() {
 
+func setupFlags() {
 	opts := []string{"gc"}
 	c = mycli.NewCli(nil, nil)
 	c.Title = title
@@ -122,7 +122,7 @@ func setupFlags() {
 			Flags: []mycli.CLIFlag{
 				&mycli.StringFlg{Variable: &protocol, Name: "protocol", ShortName: "proto", Usage: "Set Protocol http(s)", Value: "http"},
 				// if value is set and required passed in value has to be different or it will think it wasn't set
-				&mycli.Uint64Flg{Variable: &t2, Name: "port", ShortName: "p", Usage: "Change server port", Value: 8080},
+				&mycli.Int64Flg{Variable: &t2, Name: "port", ShortName: "p", Usage: "Change server port", Value: 8080},
 			},
 		},
 		{
