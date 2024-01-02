@@ -2,8 +2,8 @@ package mycli
 
 import (
 	"github.com/pelletier/go-toml/v2"
-	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"sync"
 )
@@ -26,7 +26,7 @@ type TomlWrapper struct {
 }
 
 func (t *TomlWrapper) LoadToml(path string) error {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
