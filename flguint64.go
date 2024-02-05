@@ -28,27 +28,38 @@ type Uint64Flg struct {
 	debugLevel    int64
 }
 
-func (c *Uint64Flg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr) {
-	fld := c.Variable.(*uint64)
-	// Map Any Duplicate Pointer issues for Variables and warn user
-	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
-		// Don't add same thing twice
-		if v[0].FieldName != c.Name || v[0].Command != c.Command {
-			// found add to array
-			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
-			varMap[fmt.Sprintf("%p", c.Variable)] = v
+func (c *Uint64Flg) AdjustValue(cmd string, flgValues map[string]interface{}) {
+	for k, v := range flgValues {
+		if k == cmd+"_"+c.Name {
+			fld := c.Variable.(*uint64)
+			*fld = v.(uint64)
+			//fmt.Printf("value set for %v to '%v'\n", c.Name, v.(uint64))
 		}
-	} else {
-		// create array
-		t := make([]FieldPtr, 0)
-		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
-		varMap[fmt.Sprintf("%p", c.Variable)] = t
 	}
+}
+func (c *Uint64Flg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr, flgValues map[string]interface{}) {
+	fld := c.Variable.(*uint64)
+
 	flgSet.Uint64Var(fld, c.Name, c.Value, c.Usage)
 	if len(c.ShortName) > 0 {
 		flgSet.Uint64Var(fld, c.ShortName, c.Value, c.Usage)
 	}
 	*fld = c.Value
+	flgValues[c.Command+"_"+c.Name] = *fld
+	// Map Any Duplicate Pointer issues for Variables and warn user
+	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
+		// Don't add same thing twice
+		if v[0].FieldName != c.Name || v[0].Command != c.Command {
+			// found add to array
+			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "uint64"})
+			varMap[fmt.Sprintf("%p", c.Variable)] = v
+		}
+	} else {
+		// create array
+		t := make([]FieldPtr, 0)
+		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "uint64"})
+		varMap[fmt.Sprintf("%p", c.Variable)] = t
+	}
 }
 func (c *Uint64Flg) GCommand(cmd string) {
 	c.Command = cmd

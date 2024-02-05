@@ -27,32 +27,47 @@ type StringFlg struct {
 	debugLevel    int64
 }
 
-func (c *StringFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr) {
-	fld := c.Variable.(*string)
-	// Map Any Duplicate Pointer issues for Variables and warn user
-	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
-		// Don't add same thing twice
-		if v[0].FieldName != c.Name || v[0].Command != c.Command {
-			// found add to array
-			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
-			varMap[fmt.Sprintf("%p", c.Variable)] = v
+func (c *StringFlg) AdjustValue(cmd string, flgValues map[string]interface{}) {
+	for k, v := range flgValues {
+		if k == cmd+"_"+c.Name && c.Name != "config" && c.Name != "proxyhttp" && c.Name != "proxyhttps" && c.Name != "noproxy" {
+			fld := c.Variable.(*string)
+			*fld = v.(string)
+			//fmt.Printf("value set for %v to '%v'\n", c.Name, v.(string))
 		}
-	} else {
-		// create array
-		t := make([]FieldPtr, 0)
-		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
-		varMap[fmt.Sprintf("%p", c.Variable)] = t
 	}
+}
+func (c *StringFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr, flgValues map[string]interface{}) {
+	// obtain variable field pointer
+	fld := c.Variable.(*string)
+
 	//if len(c.Command) > 0 {
 	//	fmt.Printf("Address of %v in command %v - %p\n", c.Name, c.Command, c.Variable)
 	//} else {
 	//	fmt.Printf("Address of GLOBAL %v - %p\n", c.Name, c.Variable)
 	//}
+	// set value to variable pointer using golang std lib with the passed in command line name
 	flgSet.StringVar(fld, c.Name, c.Value, c.Usage)
 	if len(c.ShortName) > 0 {
+		// set value to variable using golang std lib with the passed in command line short name
 		flgSet.StringVar(fld, c.ShortName, c.Value, c.Usage)
 	}
 	*fld = c.Value
+	flgValues[c.Command+"_"+c.Name] = *fld
+	// Map Any Duplicate Pointer issues for Variables and warn user
+	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
+		// Don't add same thing twice
+		if v[0].FieldName != c.Name || v[0].Command != c.Command {
+			// found add to array
+			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "string"})
+			varMap[fmt.Sprintf("%p", c.Variable)] = v
+		}
+	} else {
+		// create array
+		t := make([]FieldPtr, 0)
+		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "string"})
+		varMap[fmt.Sprintf("%p", c.Variable)] = t
+	}
+	//fmt.Printf("%v - %v\n", c.Command, *fld)
 }
 func (c *StringFlg) GCommand(cmd string) {
 	c.Command = cmd

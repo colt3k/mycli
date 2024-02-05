@@ -86,6 +86,7 @@ func main() {
 }
 
 func setupFlags() {
+	var fieldName string
 	opts := []string{"gc"}
 	c = mycli.NewCli(nil, nil)
 	c.Title = title
@@ -101,6 +102,7 @@ func setupFlags() {
 	c.PostGlblAction = func() error { return setLogger() }
 	// Enable Environment VARs, default is disabled
 	//c.DisableEnvVars = false
+	c.DisableFlagValidation = true
 	// remove Prefix default of "T" or change to your own
 	//c.EnvPrefix = ""
 	c.Flgs = []mycli.CLIFlag{
@@ -108,6 +110,7 @@ func setupFlags() {
 		&mycli.StringFlg{Variable: &path, Name: "path", Usage: "Used to test path with slash"},
 		&mycli.StringFlg{Variable: &url, Name: "url", Usage: "Used to test url with slashes"},
 		&custom.TomlFlg{Variable: &clients, Name: "clients", Usage: "Set name to toml table type"},
+		&mycli.StringFlg{Variable: &fieldName, Name: "fieldname", ShortName: "fn", Usage: "field name(s) (CamelCase) to show, comma separated in double quotes", Value: "MaxLength0"},
 	}
 
 	c.Cmds = []*mycli.CLICommand{
@@ -116,13 +119,14 @@ func setupFlags() {
 			ShortName:  "s",
 			Usage:      "use as a server",
 			Value:      nil,
-			Action:     func() { runAsServer() },
+			Action:     func() { runAsServer(fieldName) },
 			PreAction:  func() { checkDebug("cmd") },
 			PostAction: nil,
 			Flags: []mycli.CLIFlag{
 				&mycli.StringFlg{Variable: &protocol, Name: "protocol", ShortName: "proto", Usage: "Set Protocol http(s)", Value: "http"},
 				// if value is set and required passed in value has to be different or it will think it wasn't set
 				&mycli.Int64Flg{Variable: &t2, Name: "port", ShortName: "p", Usage: "Change server port", Value: 8080},
+				&mycli.StringFlg{Variable: &fieldName, Name: "fieldname", ShortName: "fn", Usage: "field name(s) (CamelCase) to show, comma separated in double quotes", Value: "MaxLength"},
 			},
 		},
 		{
@@ -135,6 +139,7 @@ func setupFlags() {
 			PostAction: nil,
 			Flags: []mycli.CLIFlag{
 				&mycli.Int64Flg{Variable: &t3, Name: "port", ShortName: "p", Usage: "Change client port", Value: 8080, Required: true},
+				&mycli.StringFlg{Variable: &fieldName, Name: "fieldname", ShortName: "fn", Usage: "field name(s) (CamelCase) to show, comma separated in double quotes", Value: "MaxLength2"},
 			},
 		},
 		{
@@ -157,6 +162,7 @@ func setupFlags() {
 					Flags: []mycli.CLIFlag{
 						&mycli.Int64Flg{Variable: &t4, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
 						&mycli.StringFlg{Variable: &appName1, Name: "application", Usage: "Select application name", Required: true, Options: opts},
+						&mycli.StringFlg{Variable: &fieldName, Name: "fieldname", ShortName: "fn", Usage: "field name(s) (CamelCase) to show, comma separated in double quotes", Value: "MaxLength3"},
 					},
 				},
 				{
@@ -169,6 +175,7 @@ func setupFlags() {
 					Flags: []mycli.CLIFlag{
 						&mycli.Int64Flg{Variable: &t5, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
 						&mycli.StringFlg{Variable: &appName2, Name: "application", ShortName: "a", Usage: "Select application name", Required: true, Options: opts},
+						&mycli.StringFlg{Variable: &fieldName, Name: "fieldname", ShortName: "fn", Usage: "field name(s) (CamelCase) to show, comma separated in double quotes", Value: "MaxLength4"},
 					},
 				},
 			},
@@ -186,12 +193,14 @@ func setupFlags() {
 		//log.Logf(log.FATAL, "%v\n%v", err, string(stackInfo))
 		log.Logf(log.FATAL, "%v", err)
 	}
+	fmt.Printf("POST PARSE: fieldName: %v\n", fieldName)
 }
 
 func checkDebug(txt string) {
 	showStuff()
 }
-func runAsServer() {
+func runAsServer(fieldName string) {
+	//fmt.Printf("fieldName: %v\n", fieldName)
 	fmt.Println("\n** Function just prints -> Running as server **")
 	fmt.Println()
 }
@@ -201,6 +210,7 @@ func runAsClient() {
 }
 
 func showStuff() {
+	fmt.Println("****** PRINT RANDOM VALUES from Example App **********")
 	fmt.Println("Path: ", path)
 	fmt.Println("Debug Flag:", mycli.Debug)
 	fmt.Println("Test Flag:", t)
@@ -212,5 +222,7 @@ func showStuff() {
 	fmt.Println("Help Flag:", c.Help())
 	fmt.Println("SubstringList Flag:", countStringList)
 	fmt.Println("clients:", clients)
+	log.Logln(log.DBGL2, "debug level 2")
+	log.Logln(log.DBGL3, "debug level 3")
 	fmt.Println()
 }

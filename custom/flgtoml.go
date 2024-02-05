@@ -79,8 +79,12 @@ type TomlFlg struct {
 	Command       string
 }
 
+func (c *TomlFlg) AdjustValue(cmd string, flgValues map[string]interface{}) {
+
+}
+
 // BuildFlag build flag for a flagset
-func (c *TomlFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]mycli.FieldPtr) {
+func (c *TomlFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]mycli.FieldPtr, flgValues map[string]interface{}) {
 	fld := c.Variable.(*Clients)
 	// Map Any Duplicate Pointer issues for Variables and warn user
 	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {

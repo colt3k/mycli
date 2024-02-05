@@ -27,27 +27,38 @@ type VarFlg struct {
 	debugLevel    int64
 }
 
-func (c *VarFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr) {
-	fld := c.Variable.(*StringList)
-	// Map Any Duplicate Pointer issues for Variables and warn user
-	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
-		// Don't add same thing twice
-		if v[0].FieldName != c.Name || v[0].Command != c.Command {
-			// found add to array
-			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
-			varMap[fmt.Sprintf("%p", c.Variable)] = v
+func (c *VarFlg) AdjustValue(cmd string, flgValues map[string]interface{}) {
+	for k, v := range flgValues {
+		if k == cmd+"_"+c.Name {
+			fld := c.Variable.(*StringList)
+			*fld = v.(StringList)
+			//fmt.Printf("value set for %v to '%v'\n", c.Name, v.(StringList))
 		}
-	} else {
-		// create array
-		t := make([]FieldPtr, 0)
-		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
-		varMap[fmt.Sprintf("%p", c.Variable)] = t
 	}
+}
+func (c *VarFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr, flgValues map[string]interface{}) {
+	fld := c.Variable.(*StringList)
+
 	flgSet.Var(fld, c.Name, c.Usage)
 	if len(c.ShortName) > 0 {
 		flgSet.Var(fld, c.ShortName, c.Usage)
 	}
 	*fld = c.Value
+	flgValues[c.Command+"_"+c.Name] = *fld
+	// Map Any Duplicate Pointer issues for Variables and warn user
+	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
+		// Don't add same thing twice
+		if v[0].FieldName != c.Name || v[0].Command != c.Command {
+			// found add to array
+			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "stringlist"})
+			varMap[fmt.Sprintf("%p", c.Variable)] = v
+		}
+	} else {
+		// create array
+		t := make([]FieldPtr, 0)
+		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "stringlist"})
+		varMap[fmt.Sprintf("%p", c.Variable)] = t
+	}
 }
 func (c *VarFlg) GCommand(cmd string) {
 	c.Command = cmd

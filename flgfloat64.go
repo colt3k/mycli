@@ -27,27 +27,40 @@ type Float64Flg struct {
 	debugLevel    int64
 }
 
-func (c *Float64Flg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr) {
+func (c *Float64Flg) AdjustValue(cmd string, flgValues map[string]interface{}) {
+	for k, v := range flgValues {
+		if k == cmd+"_"+c.Name {
+			fld := c.Variable.(*float64)
+			*fld = v.(float64)
+			//fmt.Printf("value set for %v to '%v'\n", c.Name, v.(float64))
+		}
+	}
+}
+func (c *Float64Flg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr, flgValues map[string]interface{}) {
+	// obtain variable field pointer
 	fld := c.Variable.(*float64)
+	// set value to variable pointer using golang std lib with the passed in command line name
+	flgSet.Float64Var(fld, c.Name, c.Value, c.Usage)
+	if len(c.ShortName) > 0 {
+		// set value to variable using golang std lib with the passed in command line short name
+		flgSet.Float64Var(fld, c.ShortName, c.Value, c.Usage)
+	}
+	*fld = c.Value
+	flgValues[c.Command+"_"+c.Name] = *fld
 	// Map Any Duplicate Pointer issues for Variables and warn user
 	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
 		// Don't add same thing twice
 		if v[0].FieldName != c.Name || v[0].Command != c.Command {
 			// found add to array
-			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
+			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "float"})
 			varMap[fmt.Sprintf("%p", c.Variable)] = v
 		}
 	} else {
 		// create array
 		t := make([]FieldPtr, 0)
-		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
+		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "float"})
 		varMap[fmt.Sprintf("%p", c.Variable)] = t
 	}
-	flgSet.Float64Var(fld, c.Name, c.Value, c.Usage)
-	if len(c.ShortName) > 0 {
-		flgSet.Float64Var(fld, c.ShortName, c.Value, c.Usage)
-	}
-	*fld = c.Value
 }
 func (c *Float64Flg) GCommand(cmd string) {
 	c.Command = cmd

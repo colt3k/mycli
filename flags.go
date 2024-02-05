@@ -33,8 +33,9 @@ type CLIFlag interface {
 	GCommaSepVal() bool
 	ValueAsString() string
 	GCommand(string)
-	BuildFlag(*flag.FlagSet, map[string][]FieldPtr)
+	BuildFlag(*flag.FlagSet, map[string][]FieldPtr, map[string]interface{})
 	UnquotedUsage() string
+	AdjustValue(cmd string, flgValues map[string]interface{})
 }
 
 // checkRequired check if a required flag is set before continuing

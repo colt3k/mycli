@@ -27,27 +27,41 @@ type BoolFlg struct {
 	debugLevel    int64
 }
 
-func (c *BoolFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr) {
-	fld := c.Variable.(*bool)
-	// Map Any Duplicate Pointer issues for Variables and warn user
-	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
-		// Don't add same thing twice
-		if v[0].FieldName != c.Name || v[0].Command != c.Command {
-			// found add to array
-			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
-			varMap[fmt.Sprintf("%p", c.Variable)] = v
+func (c *BoolFlg) AdjustValue(cmd string, flgValues map[string]interface{}) {
+	for k, v := range flgValues {
+		if k == cmd+"_"+c.Name && c.Name != "debug" && c.Name != "help" && c.Name != "version" && c.Name != "generate-bash-completion" {
+			fld := c.Variable.(*bool)
+			*fld = v.(bool)
+			//fmt.Printf("value set for %v to '%v'\n", c.Name, v.(bool))
 		}
-	} else {
-		// create array
-		t := make([]FieldPtr, 0)
-		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable)})
-		varMap[fmt.Sprintf("%p", c.Variable)] = t
 	}
+}
+
+func (c *BoolFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr, flgValues map[string]interface{}) {
+	// what is this flag below? i.e. command
+
+	fld := c.Variable.(*bool)
+
 	flgSet.BoolVar(fld, c.Name, c.Value, c.Usage)
 	if len(c.ShortName) > 0 {
 		flgSet.BoolVar(fld, c.ShortName, c.Value, c.Usage)
 	}
 	*fld = c.Value
+	flgValues[c.Command+"_"+c.Name] = *fld
+	// Map Any Duplicate Pointer issues for Variables and warn user
+	if v, ok := varMap[fmt.Sprintf("%p", c.Variable)]; ok {
+		// Don't add same thing twice
+		if v[0].FieldName != c.Name || v[0].Command != c.Command {
+			// found add to array
+			v = append(v, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "bool"})
+			varMap[fmt.Sprintf("%p", c.Variable)] = v
+		}
+	} else {
+		// create array
+		t := make([]FieldPtr, 0)
+		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "bool"})
+		varMap[fmt.Sprintf("%p", c.Variable)] = t
+	}
 }
 func (c *BoolFlg) GCommand(cmd string) {
 	c.Command = cmd

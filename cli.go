@@ -31,12 +31,15 @@ var (
 	Debug                  bool
 	DebugLevel             int64
 	GenerateBashCompletion bool
+	FlgValues              map[string]interface{}
 )
 
 type FieldPtr struct {
 	FieldName string
 	Address   string
 	Command   string
+	Value     interface{}
+	ValType   string
 }
 type CLICommand struct {
 	// Name of the command and passed for use
@@ -294,6 +297,7 @@ func (c *CLI) buildEnvVar(f CLIFlag) string {
 	}
 }
 
+// ValidateFlgKind ensure these are of type pointer or nil otherwise error
 func (c *CLI) ValidateFlgKind() error {
 	for _, d := range c.Flgs {
 		err := d.Kind()
@@ -429,6 +433,7 @@ func (c *CLI) parseConfigFile() error {
 	return nil
 }
 func (c *CLI) Parse() error {
+	FlgValues = make(map[string]interface{})
 	// add default flags, help, debug, debuglevel, version, config
 	var start time.Time
 	var ttlTime int64
@@ -701,6 +706,8 @@ func (c *CLI) Parse() error {
 	}
 
 	if Debug && !GenerateBashCompletion {
+		// set flags to proper value on variable pointer
+		c.adjustFlagVars("", c.Flgs)
 		ng.Logln(ng.DEBUG, "**** Start Global Flags ****")
 		ng.DisableTimestamp()
 		ng.DisableTextQuoting()
@@ -711,7 +718,6 @@ func (c *CLI) Parse() error {
 		ng.EnableTimestamp()
 		ng.Logln(ng.DEBUG, "**** End Global Flags ****")
 	}
-
 	// Process input
 	var parentCmd string
 	var subCmd string
@@ -757,8 +763,8 @@ func (c *CLI) Parse() error {
 			}
 		}
 	}
-
 	if activeCmd != nil {
+		//fmt.Printf("-- RUNNING ACTIVE CMD debug?: %v ; GenerateBaseComp %v\n", Debug, GenerateBashCompletion)
 		if Debug && !GenerateBashCompletion {
 			if c.MainAction != nil {
 				fmt.Println("")
@@ -771,7 +777,7 @@ func (c *CLI) Parse() error {
 				fmt.Printf("Active command : %v\n", activeCmd.Name)
 			}
 		}
-		err := activeCmd.FS.Parse(os.Args[pos:])
+		err = activeCmd.FS.Parse(os.Args[pos:])
 		PanicErr(err)
 		err = c.ValidateValues(true)
 		if Err(err) {
@@ -802,11 +808,19 @@ func (c *CLI) Parse() error {
 			//fmt.Println("generate_bash_completion_IS_BASH_AT_END_EXITING!!!")
 			os.Exit(1)
 		}
+		// set flags to proper value on variable pointer
+		c.adjustFlagVars(activeCmd.Name, c.Flgs)
 		// If in debug mode print out subcommand
 		if Debug && !GenerateBashCompletion {
+			ng.Logln(ng.DEBUG, "**** Start Target Flags ****")
+			ng.DisableTimestamp()
+			ng.DisableTextQuoting()
 			for _, f := range activeCmd.Flags {
 				fmt.Printf("Subcommand '%s' Flag '%s': %v\n", activeCmd.Name, f.GName(), f.GVariableToString())
 			}
+			ng.EnableTextQuoting()
+			ng.EnableTimestamp()
+			ng.Logln(ng.DEBUG, "**** End Target Flags ****")
 		}
 
 		c.checkRequired(activeCmd.FS.Name(), activeCmd.Flags)
@@ -831,6 +845,7 @@ func (c *CLI) Parse() error {
 				return fmt.Errorf("no action type defined")
 			}
 		}
+
 		err = runAction(activeCmd.Action)
 		if err != nil {
 			return err
@@ -843,6 +858,8 @@ func (c *CLI) Parse() error {
 			}
 		}
 	} else if c.MainAction != nil {
+		fmt.Println("-- RUNNING MAIN ACTION --")
+		c.adjustFlagVars("", c.Flgs)
 		err = runAction(c.MainAction)
 		if err != nil {
 			return err
@@ -973,10 +990,19 @@ func (c *CLI) buildFlags(flgSet *flag.FlagSet, flgs []CLIFlag, cm *CLICommand) {
 
 	for _, f := range flgs {
 		if cm != nil {
+			// set command for the flag
 			f.GCommand(cm.Name)
 		}
-		f.BuildFlag(flgSet, c.varMap)
+		f.BuildFlag(flgSet, c.varMap, FlgValues)
 	}
+}
+
+func (c *CLI) adjustFlagVars(cmd string, flgs []CLIFlag) {
+	//fmt.Printf("DEBUG PRIOR ON %v\n", Debug)
+	for _, x := range flgs {
+		x.AdjustValue(cmd, FlgValues)
+	}
+	//fmt.Printf("DEBUG POST ON %v\n", Debug)
 }
 
 func (c *CLI) buildCmds() {
@@ -1014,7 +1040,7 @@ func (c *CLI) validateVariables() {
 			fmt.Println()
 			fmt.Println("!!!!!!!! WARNING !!!!!!!!!!!!!")
 			for _, m := range y {
-				fmt.Printf("Multiple(%vx) use on \"Address of Variable for '%v' in command '%v' at '%v'\"\n", len(y), m.FieldName, m.Command, m.Address)
+				fmt.Printf("Multiple(%vx) use on \"Address of Variable for '%v' in command '%v' at '%v' - value: '%v'\"\n", len(y), m.FieldName, m.Command, m.Address, m.Value)
 			}
 			warned = true
 		}
