@@ -707,7 +707,7 @@ func (c *CLI) Parse() error {
 
 	if Debug && !GenerateBashCompletion {
 		// set flags to proper value on variable pointer
-		c.adjustFlagVars("", c.Flgs)
+		//c.adjustFlagVars("", c.Flgs)
 		ng.Logln(ng.DEBUG, "**** Start Global Flags ****")
 		ng.DisableTimestamp()
 		ng.DisableTextQuoting()
@@ -809,7 +809,7 @@ func (c *CLI) Parse() error {
 			os.Exit(1)
 		}
 		// set flags to proper value on variable pointer
-		c.adjustFlagVars(activeCmd.Name, c.Flgs)
+		//c.adjustFlagVars(activeCmd.Name, c.Flgs)
 		// If in debug mode print out subcommand
 		if Debug && !GenerateBashCompletion {
 			ng.Logln(ng.DEBUG, "**** Start Target Flags ****")
@@ -859,7 +859,7 @@ func (c *CLI) Parse() error {
 		}
 	} else if c.MainAction != nil {
 		fmt.Println("-- RUNNING MAIN ACTION --")
-		c.adjustFlagVars("", c.Flgs)
+		//c.adjustFlagVars("", c.Flgs)
 		err = runAction(c.MainAction)
 		if err != nil {
 			return err
