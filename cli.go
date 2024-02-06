@@ -1064,7 +1064,7 @@ func (c *CLI) validateVariables() {
 				continue
 			}
 			fmt.Println()
-			fmt.Println("!!!!!!!! WARNING !!!!!!!!!!!!!")
+			fmt.Println("!!!!!!!! WARNING (same &variable diff values, last will override) !!!!!!!!!!!!!")
 			for _, m := range y {
 				fmt.Printf("Multiple(%vx) use on \"Address of Variable for '%v' in command '%v' at '%v' - value: '%v'\"\n", len(y), m.FieldName, m.Command, m.Address, m.Value)
 			}
