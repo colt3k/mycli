@@ -102,7 +102,8 @@ func setupFlags() {
 	c.PostGlblAction = func() error { return setLogger() }
 	// Enable Environment VARs, default is disabled
 	//c.DisableEnvVars = false
-	c.DisableFlagValidation = true
+	//c.DisableFlagValidation = true
+	c.ShowDuration = false
 	// remove Prefix default of "T" or change to your own
 	//c.EnvPrefix = ""
 	c.Flgs = []mycli.CLIFlag{

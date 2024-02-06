@@ -36,6 +36,7 @@ func (c *Float64Flg) AdjustValue(cmd string, flgValues map[string]interface{}) {
 		}
 	}
 }
+
 func (c *Float64Flg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr, flgValues map[string]interface{}) {
 	// obtain variable field pointer
 	fld := c.Variable.(*float64)
@@ -45,6 +46,7 @@ func (c *Float64Flg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPt
 		// set value to variable using golang std lib with the passed in command line short name
 		flgSet.Float64Var(fld, c.ShortName, c.Value, c.Usage)
 	}
+	// set value to memory pointer of variable
 	*fld = c.Value
 	flgValues[c.Command+"_"+c.Name] = *fld
 	// Map Any Duplicate Pointer issues for Variables and warn user
@@ -135,6 +137,7 @@ func (c *Float64Flg) RetrieveConfigValue(val *TomlWrapper, name string) error {
 }
 func (c *Float64Flg) RequiredAndNotSet() bool {
 	fld := c.Variable.(*float64)
+	// if this is the same it wasn't set
 	if c.Required && *fld == c.Value {
 		return true
 	}

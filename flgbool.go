@@ -38,14 +38,15 @@ func (c *BoolFlg) AdjustValue(cmd string, flgValues map[string]interface{}) {
 }
 
 func (c *BoolFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr, flgValues map[string]interface{}) {
-	// what is this flag below? i.e. command
-
+	// obtain variable field pointer
 	fld := c.Variable.(*bool)
-
+	// set value to variable pointer using golang std lib with the passed in command line name
 	flgSet.BoolVar(fld, c.Name, c.Value, c.Usage)
 	if len(c.ShortName) > 0 {
+		// set value to variable using golang std lib with the passed in command line short name
 		flgSet.BoolVar(fld, c.ShortName, c.Value, c.Usage)
 	}
+	// set value to memory pointer of variable
 	*fld = c.Value
 	flgValues[c.Command+"_"+c.Name] = *fld
 	// Map Any Duplicate Pointer issues for Variables and warn user
@@ -137,6 +138,7 @@ func (c *BoolFlg) RetrieveConfigValue(val *TomlWrapper, name string) error {
 }
 func (c *BoolFlg) RequiredAndNotSet() bool {
 	fld := c.Variable.(*bool)
+	// if this is the same it wasn't set
 	if c.Required && *fld == c.Value {
 		return true
 	}
@@ -150,6 +152,7 @@ func (c *BoolFlg) GCommaSepVal() bool {
 }
 func (c *BoolFlg) ValidValue() bool {
 	if len(c.Options) > 0 && c.Value != *c.Variable.(*bool) {
+		// if passed in and has options then validate value is in options
 		for _, d := range c.Options {
 			if d == *c.Variable.(*bool) {
 				return true
@@ -174,7 +177,6 @@ func (c *BoolFlg) Kind() error {
 	}
 	return nil
 }
-
 func (c *BoolFlg) GHidden() bool {
 	return c.Hidden
 }

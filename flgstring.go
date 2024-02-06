@@ -28,15 +28,10 @@ type StringFlg struct {
 }
 
 func (c *StringFlg) AdjustValue(cmd string, flgValues map[string]interface{}) {
-	//fmt.Printf("set value for %v\nValues\n%v", cmd, flgValues)
-
-	//if cmd == "user_passpolicy" {
-	//	fmt.Printf("val for key: %v\n", flgValues[cmd+"_fieldname"])
-	//}
 	for k, v := range flgValues {
-		if c.Name == "application" && cmd == "weserve_config" && k == cmd+"_"+c.Name {
-			fmt.Println("application\n")
-		}
+		//if c.Name == "application" && cmd == "weserve_config" && k == cmd+"_"+c.Name {
+		//	fmt.Println("application\n")
+		//}
 		if k == cmd+"_"+c.Name && c.Name != "config" && c.Name != "proxyhttp" && c.Name != "proxyhttps" && c.Name != "noproxy" {
 			fld := c.Variable.(*string)
 			*fld = v.(string)
@@ -44,24 +39,17 @@ func (c *StringFlg) AdjustValue(cmd string, flgValues map[string]interface{}) {
 		}
 	}
 }
+
 func (c *StringFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr, flgValues map[string]interface{}) {
 	// obtain variable field pointer
 	fld := c.Variable.(*string)
-
-	//if len(c.Command) > 0 {
-	//	fmt.Printf("Address of %v in command %v - %p\n", c.Name, c.Command, c.Variable)
-	//} else {
-	//	fmt.Printf("Address of GLOBAL %v - %p\n", c.Name, c.Variable)
-	//}
 	// set value to variable pointer using golang std lib with the passed in command line name
-	if c.Name == "fieldname" {
-		fmt.Println()
-	}
 	flgSet.StringVar(fld, c.Name, c.Value, c.Usage)
 	if len(c.ShortName) > 0 {
 		// set value to variable using golang std lib with the passed in command line short name
 		flgSet.StringVar(fld, c.ShortName, c.Value, c.Usage)
 	}
+	// set value to memory pointer of variable
 	*fld = c.Value
 	flgValues[c.Command+"_"+c.Name] = *fld
 	// Map Any Duplicate Pointer issues for Variables and warn user
@@ -78,7 +66,6 @@ func (c *StringFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr
 		t = append(t, FieldPtr{FieldName: c.Name, Command: c.Command, Address: fmt.Sprintf("%p", c.Variable), Value: *fld, ValType: "string"})
 		varMap[fmt.Sprintf("%p", c.Variable)] = t
 	}
-	//fmt.Printf("%v - %v\n", c.Command, *fld)
 }
 func (c *StringFlg) GCommand(cmd string) {
 	c.Command = cmd
@@ -123,6 +110,9 @@ func (c *StringFlg) RetrieveEnvValue() error {
 	fld := c.Variable.(*string)
 	if *fld == c.Value {
 		if envVal, found := os.LookupEnv(c.EnvVar); found {
+			if c.debug {
+				log.Println("overriding " + c.Name + " with env variable setting '" + envVal + "'")
+			}
 			*fld = envVal
 		}
 	}
@@ -178,7 +168,7 @@ func (c *StringFlg) ValidValue() bool {
 			}
 			return true
 		} else {
-			// is passed value a valid value in options?
+			// if passed in and has options then validate value is in options
 			for _, d := range c.Options {
 				if d == *c.Variable.(*string) {
 					return true

@@ -36,13 +36,17 @@ func (c *VarFlg) AdjustValue(cmd string, flgValues map[string]interface{}) {
 		}
 	}
 }
-func (c *VarFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr, flgValues map[string]interface{}) {
-	fld := c.Variable.(*StringList)
 
+func (c *VarFlg) BuildFlag(flgSet *flag.FlagSet, varMap map[string][]FieldPtr, flgValues map[string]interface{}) {
+	// obtain variable field pointer
+	fld := c.Variable.(*StringList)
+	// set value to variable pointer using golang std lib with the passed in command line name
 	flgSet.Var(fld, c.Name, c.Usage)
 	if len(c.ShortName) > 0 {
+		// set value to variable using golang std lib with the passed in command line short name
 		flgSet.Var(fld, c.ShortName, c.Usage)
 	}
+	// set value to memory pointer of variable
 	*fld = c.Value
 	flgValues[c.Command+"_"+c.Name] = *fld
 	// Map Any Duplicate Pointer issues for Variables and warn user
@@ -123,7 +127,7 @@ func (c *VarFlg) RetrieveConfigValue(val map[string]interface{}, name string) er
 	fld := c.Variable.(*StringList)
 	if fld.String() == c.Value.String() {
 		if c.debug {
-			log.Println("overriding " + c.Name + " with CONFIG variable setting'" + curVal.String() + "'")
+			log.Println("overriding " + c.Name + " with CONFIG variable setting '" + curVal.String() + "'")
 		}
 		*fld = curVal
 	}
@@ -131,6 +135,7 @@ func (c *VarFlg) RetrieveConfigValue(val map[string]interface{}, name string) er
 }
 func (c *VarFlg) RequiredAndNotSet() bool {
 	fld := c.Variable.(*StringList)
+	// if this is the same it wasn't set
 	if c.Required && reflect.DeepEqual(*fld, c.GValue().(StringList)) {
 		return true
 	}
@@ -144,6 +149,7 @@ func (c *VarFlg) GCommaSepVal() bool {
 }
 func (c *VarFlg) ValidValue() bool {
 	if len(c.Options) > 0 && len(c.Variable.(*StringList).String()) > 0 && c.Value.String() != c.Variable.(*StringList).String() {
+		// if passed in and has options then validate value is in options
 		for _, d := range c.Options {
 			if d.String() == c.Value.String() {
 				return true
@@ -168,7 +174,6 @@ func (c *VarFlg) Kind() error {
 	}
 	return nil
 }
-
 func (c *VarFlg) GHidden() bool {
 	return c.Hidden
 }

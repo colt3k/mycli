@@ -707,7 +707,7 @@ func (c *CLI) Parse() error {
 
 	if Debug && !GenerateBashCompletion {
 		// set flags to proper value on variable pointer
-		c.adjustFlagVars("", c.Flgs)
+		//c.adjustFlagVars("", c.Flgs)
 		ng.Logln(ng.DEBUG, "**** Start Global Flags ****")
 		ng.DisableTimestamp()
 		ng.DisableTextQuoting()
@@ -718,6 +718,7 @@ func (c *CLI) Parse() error {
 		ng.EnableTimestamp()
 		ng.Logln(ng.DEBUG, "**** End Global Flags ****")
 	}
+
 	// Process input
 	var parentCmd string
 	var subCmd string
@@ -766,6 +767,7 @@ func (c *CLI) Parse() error {
 			}
 		}
 	}
+
 	if activeCmd != nil {
 		//fmt.Printf("-- RUNNING ACTIVE CMD debug?: %v ; GenerateBaseComp %v\n", Debug, GenerateBashCompletion)
 		if Debug && !GenerateBashCompletion {
@@ -862,8 +864,8 @@ func (c *CLI) Parse() error {
 			}
 		}
 	} else if c.MainAction != nil {
-		fmt.Println("-- RUNNING MAIN ACTION --")
-		c.adjustFlagVars("", c.Flgs)
+		//fmt.Println("-- RUNNING MAIN ACTION --")
+		//c.adjustFlagVars("", c.Flgs)
 		err = runAction(c.MainAction)
 		if err != nil {
 			return err
@@ -996,7 +998,7 @@ func (c *CLI) buildFlags(flgSet *flag.FlagSet, flgs []CLIFlag, cm *CLICommand, c
 	for _, f := range flgs {
 		if cm != nil {
 			// set command for the flag
-			f.GCommand(cmdPath)
+			f.GCommand(cm.Name)
 		}
 		f.BuildFlag(flgSet, c.varMap, FlgValues)
 	}
@@ -1013,19 +1015,16 @@ func (c *CLI) adjustFlagVars(cmd string, flgs []CLIFlag) {
 func (c *CLI) buildCmds() {
 	var cmdPath string
 	for i, d := range c.Cmds {
-		hasSub := false
 		mainCmdPath := strings.ToLower(d.Name)
 		doOnError := flag.ExitOnError
+		tmpCommand := flag.NewFlagSet(strings.ToLower(d.Name), doOnError)
+		c.Cmds[i].FS = tmpCommand
+		c.buildFlags(tmpCommand, d.Flags, d, mainCmdPath)
 		for j, k := range d.SubCommands {
-			cmdPath = mainCmdPath + "_" + strings.ToLower(k.Name)
-			tmpCommand := flag.NewFlagSet(cmdPath, doOnError)
+			//cmdPath = mainCmdPath + "_" + strings.ToLower(k.Name)
+			tmpCommand = flag.NewFlagSet(strings.ToLower(k.Name), doOnError)
 			d.SubCommands[j].FS = tmpCommand
 			c.buildFlags(tmpCommand, k.Flags, k, cmdPath)
-		}
-		if !hasSub {
-			tmpCommand := flag.NewFlagSet(mainCmdPath, doOnError)
-			c.Cmds[i].FS = tmpCommand
-			c.buildFlags(tmpCommand, d.Flags, d, cmdPath)
 		}
 	}
 }
@@ -1046,6 +1045,22 @@ func (c *CLI) validateVariables() {
 			}
 			// Not a default show issue
 			if defaultSkip {
+				continue
+			}
+
+			sameVarAndValueSkip := true
+			var lastVal interface{}
+			for _, m := range y {
+				if lastVal == nil {
+					lastVal = m.Value
+					continue
+				}
+				if m.Value != lastVal {
+					sameVarAndValueSkip = false
+				}
+			}
+
+			if sameVarAndValueSkip {
 				continue
 			}
 			fmt.Println()
