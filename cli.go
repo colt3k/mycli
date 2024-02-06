@@ -474,7 +474,7 @@ func (c *CLI) Parse() error {
 		start = time.Now()
 	}
 	// Pre process Global Flags
-	c.buildFlags(flag.CommandLine, c.Flgs, nil)
+	c.buildFlags(flag.CommandLine, c.Flgs, nil, "")
 	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
@@ -558,7 +558,7 @@ func (c *CLI) Parse() error {
 	if c.ShowDuration {
 		start = time.Now()
 	}
-	c.buildFlags(flag.CommandLine, c.Flgs, nil)
+	c.buildFlags(flag.CommandLine, c.Flgs, nil, "")
 	if c.ShowDuration {
 		duration := time.Since(start)
 		ttlTime += duration.Nanoseconds()
@@ -724,9 +724,11 @@ func (c *CLI) Parse() error {
 	var activeCmd *CLICommand
 	var pos int
 
+	var activePath string
 	for _, d := range c.Cmds {
 		for i, a := range os.Args {
 			if len(os.Args) > 1 && (a == strings.ToLower(d.Name) || a == strings.ToLower(d.ShortName)) {
+				activePath = strings.ToLower(d.Name)
 				pos = i + 1
 				t := d
 				c.cur = t
@@ -743,6 +745,7 @@ func (c *CLI) Parse() error {
 					//log.Println("check sub commands for ", d.Name, " is ", a, " = ", k.Name, " or ", k.ShortName)
 					for q, b := range os.Args {
 						if b == strings.ToLower(k.Name) || b == strings.ToLower(k.ShortName) {
+							activePath = activePath + "_" + strings.ToLower(k.Name)
 							pos = q + 1
 							t := k
 							c.cur = t
@@ -808,8 +811,9 @@ func (c *CLI) Parse() error {
 			//fmt.Println("generate_bash_completion_IS_BASH_AT_END_EXITING!!!")
 			os.Exit(1)
 		}
-		// set flags to proper value on variable pointer
-		c.adjustFlagVars(activeCmd.Name, c.Flgs)
+		// set flags to proper value on variable pointer activeCmd.Flags
+		//c.adjustFlagVars(activePath, c.Flgs)
+		//c.adjustFlagVars(activePath, activeCmd.Flags)
 		// If in debug mode print out subcommand
 		if Debug && !GenerateBashCompletion {
 			ng.Logln(ng.DEBUG, "**** Start Target Flags ****")
@@ -977,7 +981,7 @@ func (c *CLI) setupBashFlag(cm *CLICommand) CLIFlag {
 	}
 	return bf
 }
-func (c *CLI) buildFlags(flgSet *flag.FlagSet, flgs []CLIFlag, cm *CLICommand) {
+func (c *CLI) buildFlags(flgSet *flag.FlagSet, flgs []CLIFlag, cm *CLICommand, cmdPath string) {
 
 	if (c.BashCompletion != nil || (cm != nil && cm.BashCompletion != nil)) && !c.findFlag("generate-bash-completion", flgs) {
 		flg := c.setupBashFlag(cm)
@@ -988,10 +992,11 @@ func (c *CLI) buildFlags(flgSet *flag.FlagSet, flgs []CLIFlag, cm *CLICommand) {
 		flgs = append(flgs, &BoolFlg{Variable: &cm.help, Name: "help", ShortName: "h", Usage: "print commands"})
 	}
 
+	// create our custom flag objects from parsing of the command line and our array of CLIFlag
 	for _, f := range flgs {
 		if cm != nil {
 			// set command for the flag
-			f.GCommand(cm.Name)
+			f.GCommand(cmdPath)
 		}
 		f.BuildFlag(flgSet, c.varMap, FlgValues)
 	}
@@ -1006,15 +1011,21 @@ func (c *CLI) adjustFlagVars(cmd string, flgs []CLIFlag) {
 }
 
 func (c *CLI) buildCmds() {
+	var cmdPath string
 	for i, d := range c.Cmds {
+		hasSub := false
+		mainCmdPath := strings.ToLower(d.Name)
 		doOnError := flag.ExitOnError
-		tmpCommand := flag.NewFlagSet(strings.ToLower(d.Name), doOnError)
-		c.Cmds[i].FS = tmpCommand
-		c.buildFlags(tmpCommand, d.Flags, d)
 		for j, k := range d.SubCommands {
-			tmpCommand = flag.NewFlagSet(strings.ToLower(k.Name), doOnError)
+			cmdPath = mainCmdPath + "_" + strings.ToLower(k.Name)
+			tmpCommand := flag.NewFlagSet(cmdPath, doOnError)
 			d.SubCommands[j].FS = tmpCommand
-			c.buildFlags(tmpCommand, k.Flags, k)
+			c.buildFlags(tmpCommand, k.Flags, k, cmdPath)
+		}
+		if !hasSub {
+			tmpCommand := flag.NewFlagSet(mainCmdPath, doOnError)
+			c.Cmds[i].FS = tmpCommand
+			c.buildFlags(tmpCommand, d.Flags, d, cmdPath)
 		}
 	}
 }

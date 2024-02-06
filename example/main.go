@@ -24,17 +24,17 @@ const (
 )
 
 var (
-	logDir                                           = file.HomeFolder()
-	logfile                                          = filepath.Join(logDir, appName+".log")
-	t                                                bool
-	capture, protocol, path, url, appName1, appName2 string
-	t3, t4, t5                                       int64
-	t2                                               int64
-	countStringList                                  mycli.StringList
-	c                                                *mycli.CLI
-	clients                                          custom.Clients
-	l                                                *lock.Lock
-	locked                                           bool
+	logDir                                 = file.HomeFolder()
+	logfile                                = filepath.Join(logDir, appName+".log")
+	t                                      bool
+	capture, protocol, path, url, appName1 string
+	t3, t4, t5                             int64
+	t2                                     int64
+	countStringList                        mycli.StringList
+	c                                      *mycli.CLI
+	clients                                custom.Clients
+	l                                      *lock.Lock
+	locked                                 bool
 )
 
 func init() {
@@ -148,6 +148,7 @@ func setupFlags() {
 			Variable: &clients,
 			Hidden:   true,
 		},
+
 		{
 			Name:  "weserve",
 			Usage: "use as a client",
@@ -174,8 +175,40 @@ func setupFlags() {
 					},
 					Flags: []mycli.CLIFlag{
 						&mycli.Int64Flg{Variable: &t5, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
-						&mycli.StringFlg{Variable: &appName2, Name: "application", ShortName: "a", Usage: "Select application name", Required: true, Options: opts},
+						&mycli.StringFlg{Variable: &appName1, Name: "application", ShortName: "a", Usage: "Select application name", Required: true, Options: opts},
 						&mycli.StringFlg{Variable: &fieldName, Name: "fieldname", ShortName: "fn", Usage: "field name(s) (CamelCase) to show, comma separated in double quotes", Value: "MaxLength4"},
+					},
+				},
+			},
+		},
+		{
+			Name:  "weserve2",
+			Usage: "use as a client",
+			SubCommands: []*mycli.CLICommand{
+				{
+					Name:      "config",
+					ShortName: "c",
+					Usage:     "use config file",
+					Action: func() {
+						log.Println("ran clients config 2")
+					},
+					Flags: []mycli.CLIFlag{
+						&mycli.Int64Flg{Variable: &t4, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
+						&mycli.StringFlg{Variable: &appName1, Name: "application", Usage: "Select application name", Required: true, Options: opts},
+						&mycli.StringFlg{Variable: &fieldName, Name: "fieldname", ShortName: "fn", Usage: "field name(s) (CamelCase) to show, comma separated in double quotes", Value: "MaxLength3b"},
+					},
+				},
+				{
+					Name:      "cmdln",
+					ShortName: "cl",
+					Usage:     "use command line",
+					Action: func() {
+						log.Println("ran clients cmdline 2")
+					},
+					Flags: []mycli.CLIFlag{
+						&mycli.Int64Flg{Variable: &t5, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
+						&mycli.StringFlg{Variable: &appName1, Name: "application", ShortName: "a", Usage: "Select application name", Required: true, Options: opts},
+						&mycli.StringFlg{Variable: &fieldName, Name: "fieldname", ShortName: "fn", Usage: "field name(s) (CamelCase) to show, comma separated in double quotes", Value: "MaxLength4b"},
 					},
 				},
 			},
