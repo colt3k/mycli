@@ -783,7 +783,10 @@ func (c *CLI) Parse() error {
 			}
 		}
 		err = activeCmd.FS.Parse(os.Args[pos:])
-		PanicErr(err)
+		if err != nil {
+			return err
+		}
+		//PanicErr(err) // 6/7/2024 removed and returned instead so locks can be removed in main apps
 		err = c.ValidateValues(true)
 		if Err(err) {
 			return err
@@ -1016,7 +1019,8 @@ func (c *CLI) buildCmds() {
 	var cmdPath string
 	for i, d := range c.Cmds {
 		mainCmdPath := strings.ToLower(d.Name)
-		doOnError := flag.ExitOnError
+		doOnError := flag.ContinueOnError
+		//doOnError := flag.ExitOnError	6/7/2024 changed to continue so locks can be removed in main apps
 		tmpCommand := flag.NewFlagSet(strings.ToLower(d.Name), doOnError)
 		c.Cmds[i].FS = tmpCommand
 		c.buildFlags(tmpCommand, d.Flags, d, mainCmdPath)
