@@ -675,7 +675,8 @@ func (c *CLI) Parse() error {
 			fmt.Printf("c.printUsage: %vns\n", duration.Nanoseconds())
 		}
 		if !c.TestMode {
-			os.Exit(1)
+			//os.Exit(1)	6/14/2024 changed finish flow to unlock app
+			return nil
 		}
 	}
 	if c.ShowDuration {
@@ -701,7 +702,8 @@ func (c *CLI) Parse() error {
 	if c.generateBashCompletion {
 		c.BashCompletion.(func(cli *CLI))(c)
 		if !c.TestMode {
-			os.Exit(1)
+			//os.Exit(1) 6/11/2024 changed to return flow to main application
+			return nil
 		}
 	}
 
@@ -796,7 +798,8 @@ func (c *CLI) Parse() error {
 			if c.TestMode {
 				return nil
 			}
-			os.Exit(1)
+			//os.Exit(1) 6/11/2024 changed to return flow to main application
+			return nil
 		}
 
 		// If generateBashCompletion flag is true and BashCompletion interface is not nil, execute it
@@ -809,12 +812,14 @@ func (c *CLI) Parse() error {
 			if c.TestMode {
 				return nil
 			}
-			os.Exit(1)
+			//os.Exit(1) 6/11/2024 changed to return flow to main application
+			return nil
 		}
 		// If we find generate-bash-completion in the command line exit
 		if strings.Index(os.Args[len(os.Args)-1], "generate-bash-completion") > -1 {
 			//fmt.Println("generate_bash_completion_IS_BASH_AT_END_EXITING!!!")
-			os.Exit(1)
+			//os.Exit(1) 6/11/2024 changed to return flow to main application
+			return nil
 		}
 		// set flags to proper value on variable pointer activeCmd.Flags
 		//c.adjustFlagVars(activePath, c.Flgs)
