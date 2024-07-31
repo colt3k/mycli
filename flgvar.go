@@ -117,7 +117,25 @@ func (c *VarFlg) RetrieveEnvValue() error {
 	}
 	return nil
 }
-func (c *VarFlg) RetrieveConfigValue(val map[string]interface{}, name string) error {
+
+func (c *VarFlg) RetrieveConfigValue(val *TomlWrapper, name string) error {
+	var curVal StringList
+	//name := c.Command + "." + c.Name
+	//if len(c.Command) == 0 {
+	//	name = c.Name
+	//}
+	curVal = val.Get(name).(StringList)
+	fld := c.Variable.(*StringList)
+	if fld.String() == c.Value.String() {
+		if c.debug {
+			log.Println("overriding " + c.Name + " with CONFIG variable setting '" + curVal.String() + "'")
+		}
+		*fld = curVal
+	}
+	return nil
+}
+
+func (c *VarFlg) RetrieveConfigValueOrig(val map[string]interface{}, name string) error {
 	var curVal StringList
 	//name := c.Command + "." + c.Name
 	//if len(c.Command) == 0 {

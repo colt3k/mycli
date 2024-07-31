@@ -100,6 +100,8 @@ type AppInfo struct {
 	BuildDate string
 	// GitCommit the short git commit hash
 	GitCommit string
+	// GitBranch the short git commit hash
+	GitBranch string
 	// GoVersion go version application was built upon
 	GoVersion string
 	// Title plain text name for the application
@@ -194,7 +196,7 @@ func NewCli(f FatalAdapter, u UsageAdapter) *CLI {
 	t.varMap = make(map[string][]FieldPtr, 0)
 
 	t.VersionPrint = func() {
-		fmt.Printf("\nversion=%s build=%s revision=%s goversion=%s\n\n", a.Version, a.BuildDate, a.GitCommit, a.GoVersion)
+		fmt.Printf("\nversion=%s build=%s revision=%s:%s goversion=%s\n\n", a.Version, a.BuildDate, a.GitBranch, a.GitCommit, a.GoVersion)
 	}
 	t.BashCompletion = BashCompletionMain
 	t.DisableEnvVars = true

@@ -190,10 +190,11 @@ Order of precedence on FLAG values
    - 4. defaults     (lowest priority)
 
 Testing using example
-    - 1. go run main.go -c config.toml server
-    - 2. go run main.go -c config.toml client
-    - 3. go run main.go -c config.toml weserve cmdln
-    - 4. go run main.go -c config.toml weserve config
+    
+- 1. go run main.go -c config.toml server
+- 2. go run main.go -c config.toml client
+- 3. go run main.go -c config.toml weserve cmdln
+- 4. go run main.go -c config.toml weserve config
 
 Warning on Reuse of Variables across Commands
 - When a variable is reused on different commands a warning is displayed

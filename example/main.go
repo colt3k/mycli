@@ -94,6 +94,7 @@ func setupFlags() {
 	c.Version = version.VERSION
 	c.BuildDate = version.BUILDDATE
 	c.GitCommit = version.GITCOMMIT
+	c.GitBranch = version.GITBRANCH
 	c.GoVersion = version.GOVERSION
 	c.Author = author
 	c.Copyright = copyright
