@@ -6,7 +6,7 @@ toolchain go1.24.10
 
 require (
 	github.com/colt3k/nglog v0.0.32
-	github.com/colt3k/utils/file v0.0.13
+	github.com/colt3k/utils/file v0.0.14
 	github.com/colt3k/utils/lock v0.0.3
 	github.com/colt3k/utils/version v0.0.5
 	github.com/pelletier/go-toml/v2 v2.1.1
