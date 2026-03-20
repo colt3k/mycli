@@ -9,6 +9,7 @@ import (
 	"strconv"
 )
 
+// Float64Flg implements CLIFlag for float64 values.
 type Float64Flg struct {
 	baseFlag
 	Variable      interface{}

@@ -9,6 +9,7 @@ import (
 	"strconv"
 )
 
+// BoolFlg implements CLIFlag for boolean values.
 type BoolFlg struct {
 	baseFlag
 	Variable      interface{}

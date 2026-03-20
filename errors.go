@@ -5,30 +5,34 @@ import (
 	"reflect"
 )
 
+// InvalidObjectError reports a flag definition that was nil or not pointer-backed.
 type InvalidObjectError struct {
 	Type reflect.Type
 	Name string
 }
+
 func (e *InvalidObjectError) Error() string {
 	if e.Type == nil {
 		return "CLIFlag: nil"
 	}
 
 	if e.Type.Kind() != reflect.Ptr {
-		return "CLIflg: non-pointer "+e.Name+" " + e.Type.String() + ""
+		return "CLIflg: non-pointer " + e.Name + " " + e.Type.String() + ""
 	}
 	return "CLIFlag: nil " + e.Type.String() + ""
 }
 
+// InvalidValueError reports a value that is outside the configured Options set.
 type InvalidValueError struct {
-	Field string
-	Value string
+	Field   string
+	Value   string
 	Options interface{}
 }
+
 func (e *InvalidValueError) Error() string {
 	if len(e.Value) == 0 {
-		return fmt.Sprintf("Invalid value for '%s' VALUE: (empty)",e.Field)
+		return fmt.Sprintf("Invalid value for '%s' VALUE: (empty)", e.Field)
 	}
 
-	return fmt.Sprintf("Invalid value for '%s' VALUE not valid '%s', VALID options are %v",e.Field,e.Value,e.Options)
+	return fmt.Sprintf("Invalid value for '%s' VALUE not valid '%s', VALID options are %v", e.Field, e.Value, e.Options)
 }

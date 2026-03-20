@@ -1,203 +1,157 @@
 # MyCLI
 
-  Abilities
-  - toml configuration file
+`mycli` is a Go library for building command-line applications with global flags, commands, subcommands, TOML-backed configuration, optional environment-variable loading, and bash completion.
 
-    - allows you to configure all flags for all commands but you still  need to pass the command/subcommand to run
-    - see example/config.toml for example
-      
-            Example
-            globalflagName="XX"
-      
-            [command]
-                [command.subcommand]
-                flagname="XX"
-  - prefix to environment values
+## Documentation
 
-            Example
-            c := mycli.NewCli(nil, nil)
-            c.EnvPrefix = "T"
-  - Commands
+- [Developer guide](docs/developer-guide.md)
+- [API reference](docs/api-reference.md)
+- [Config schema](docs/config-schema.md)
+- [Dataflow](docs/dataflow.md)
+- [Operator runbook](docs/operator-runbook.md)
+- [Contributor guide](AGENTS.md)
 
-            Example
-            const (
-              title = "Example Title"
-              description = "Example Description"
-              author = "John Doe (j.doe@example.com)"
-              copyRight = "(c) YYYY Example Inc.,"
-            )
+## Abilities
 
-            func setupFlags(ctx context.Context) {
-              var overrideLogDir string
-              var port int64 = 8081
-              cli := mycli.NewCli(nil, nil)
+### TOML configuration file
 
-              cli.Title = title
-              cli.Description = description
-              cli.Version = version.VERSION
-              cli.BuildDate = version.BUILDDATE
-              cli.GitCommit = version.GITCOMMIT
-              cli.GoVersion = version.GOVERSION
-              cli.Author = author
-              cli.Copyright = copyRight
-              cli.PostGlblAction = func() error { return setLogger(overrideLogDir) }
-              cli.Flgs = []mycli.CLIFlag{
-		         &mycli.StringFlg{Variable: &overrideLogDir, Name: "log_dir", ShortName: "ld", Usage: "override logging directory"},
-              }
+Pass `-config` to load values from TOML. Global flags live at the root, command flags live under `[command]`, and subcommand flags live under `[command.subcommand]`.
 
-              cli.Cmds = []*mycli.CLICommand{
-                  {
-                      Name:   "update",
-                      Usage:  "check for updates",
-                      Action: func() error { return update() },
-                      Flags: []mycli.CLIFlag{},
-                  },
-                  {
-			       Name:   "serve",
-			       Usage:  "start server",
-                       Action: func() error { return startServer(ctx, port) },
-			       Flags: []mycli.CLIFlag{
-				   &mycli.Int64Flg{Variable: &port, Name: "port", ShortName: "p", Value: 8081},
-                       },
-                  },
-              }
-	          err := cli.Parse()
-	          if err != nil {
-		          log.Logf(log.FATAL, "%v", err)
-	          }
-           }
-  - Sub Commands
+```toml
+capture = "hello"
 
-            EXAMPLE
-            cli := mycli.NewCli(nil, nil)
-            ...
-            cli.Cmds = []*mycli.CLICommand{
-    		Name:  "client",
-    		Usage: "use as a client",
-    		SubCommands: []*mycli.CLICommand{
-    			{
-    				Name:      "config",
-    				ShortName: "c",
-    				Usage:     "use config file",
-    				Action: func() { log.Println("ran clients config") },
-    				Flags: []mycli.CLIFlag{
-    					&mycli.Int64Flg{Variable: &t4, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
-    				},
-    			},
-    			{
-    				Name:      "cmdln",
-    				ShortName: "cl",
-    				Usage:     "use command line",
-    				Action: func() { log.Println("ran clients cmdline") },
-    				Flags: []mycli.CLIFlag{
-    					&mycli.Int64Flg{Variable: &t5, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: false},
-    				},
-    			},
-    		},
-     	    }
-  - Global and Command Flags
-  
-           EXAMPLE
-           cli := mycli.NewCli(nil, nil)
-           ...
-           cli.Flgs = []mycli.CLIFlag{
-    	      &mycli.StringFlg{Variable: &overrideLogDir, Name: "log_dir", ShortName: "ld", Usage: "override logging directory"},
-           }
-  - Custom Flag types 
-    - toml
-  - Default Flag types
-    - bool
-    - float64
-    - int64
-    - string
-    - uint64
-    - toml
-  - Help
-          
-         Example
-         $ main -h
-         NAME:
-           main
+[server]
+protocol = "https"
+port = 9090
 
-         USAGE:
-           main [global options] command [command options] [arguments...]
+[weserve.config]
+application = "gc"
+```
 
-         GLOBAL OPTIONS:
-           -debug, -d
-                 flag set to debug (default false)
+Structured payloads also work. The sample in [`example/config.toml`](example/config.toml) uses `[[clients]]` to populate `custom.Clients`.
 
-           -debugLevel, -dbglvl  int
-                 set debug level (default 0)
+### Prefix to environment values
 
-           -config, -c  string
-                 config file path
+Environment lookup is disabled by default. Enable it with `cli.DisableEnvVars = false`. When enabled, `EnvPrefix` defaults to `"T"`, so `capture` maps to `T_CAPTURE`. Explicit `EnvVar` overrides are still prefixed unless you set `cli.EnvPrefix = ""`.
 
-           -proxyhttp  string
-               HTTP_PROXY  (as environment var)
-                 Sets http_proxy for network connections
+```go
+cli := mycli.NewCli(nil, nil)
+cli.DisableEnvVars = false
+cli.EnvPrefix = "T"
+```
 
-           -proxyhttps  string
-               HTTPS_PROXY (as environment var)
-                 Sets https_proxy for network connections
+### Commands and subcommands
 
-           -noproxy  string
-               NO_PROXY    (as environment var)
-                 Sets no_proxy for network connections
+```go
+cli := mycli.NewCli(nil, nil)
+cli.Title = "Example Title"
+cli.Description = "Example Description"
+cli.Version = version.VERSION
 
-           -log_dir, -ld  string
-                 override logging directory
+cli.Flgs = []mycli.CLIFlag{
+	&mycli.StringFlg{Variable: &logDir, Name: "log_dir", ShortName: "ld", Usage: "override logging directory"},
+}
 
-         COMMANDS:
-           update:    (check for updates)
+cli.Cmds = []*mycli.CLICommand{
+	{
+		Name:   "update",
+		Usage:  "check for updates",
+		Action: func() error { return update() },
+	},
+	{
+		Name:      "server",
+		ShortName: "s",
+		Usage:     "start server",
+		Action:    func() error { return startServer(ctx, port) },
+		Flags: []mycli.CLIFlag{
+			&mycli.Int64Flg{Variable: &port, Name: "port", ShortName: "p", Value: 8081},
+		},
+	},
+}
 
-           serve:     (start server)
-               -port, -p  int
-                   Set port (default 8081)
+err := cli.Parse()
+```
 
-           client:    (use as a client)
+Subcommands are nested on `CLICommand.SubCommands`, as shown in [`example/main.go`](example/main.go) for `weserve config` and `weserve cmdln`.
 
-             Sub Commands:
-               config :  use config file
-                 -port, -p  int
-                    Set Port (default 9111)
+### Global and command flags
 
-               cmdln :   use command line
-                -port, -p  int
-                    Set Port (default 9111)
+Global flags belong in `cli.Flgs`. Command-local flags belong in `CLICommand.Flags`. `Parse()` also injects built-in flags for help, debug, debug level, version, config, proxy values, and bash completion when applicable.
 
+### Custom and default flag types
 
-  - Flag Attributes
-    - required flag
+Built-in flag types:
 
-          EXAMPLE
-          &mycli.Int64Flg{Variable: &t4, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: true},
-    - option values, limit to set of valid options
-  
-          EXAMPLE
-          &mycli.StringFlg{Variable: &capture, Name: "capture", ShortName: "cap", Usage: "Used to test string", Options: []string{"hello", "bye"}},
-  - Bash Autocompletion
-    #### use the included bash_autocomplete script along with bash-completion v2+
-        Typically you will perform the following to set this up
-        - Name of executable i.e. mytest
-        - Copy bash_autocomplete to /etc/bash_completion.d/ using the name of the executable 
-           i.e. /etc/bash_completion.d/mytest
-        - chmod 777 for all to use i.e. chmod 777 /etc/bash_completion.d/mytest
-    
-Order of precedence on FLAG values
-   - 1. commandline  (highest priority)
-   - 2. environment
-   - 3. config file
-   - 4. defaults     (lowest priority)
+- `BoolFlg`
+- `Float64Flg`
+- `Int64Flg`
+- `StringFlg`
+- `Uint64Flg`
+- `VarFlg` (`StringList`)
 
-Testing using example
-    
-- 1. go run main.go -c config.toml server
-- 2. go run main.go -c config.toml client
-- 3. go run main.go -c config.toml weserve cmdln
-- 4. go run main.go -c config.toml weserve config
+Custom flag type included in this repo:
 
-Warning on Reuse of Variables across Commands
-- When a variable is reused on different commands a warning is displayed
-  - this will help inform you that the value could be overridden unexpectedly
-  DISABLE by setting in your declaration
-  - cli.DisableFlagValidation = true
+- `custom.TomlFlg`
+
+### Flag attributes
+
+Required flags:
+
+```go
+&mycli.Int64Flg{Variable: &port, Name: "port", ShortName: "p", Usage: "Set Port", Value: 9111, Required: true}
+```
+
+Limited option sets:
+
+```go
+&mycli.StringFlg{
+	Variable: &capture,
+	Name:     "capture",
+	ShortName:"cap",
+	Usage:    "Used to test string",
+	Options:  []string{"hello", "bye"},
+}
+```
+
+### Help
+
+`-h` prints global usage, commands, subcommands, defaults, and option metadata. Command help is also available on individual commands, for example `server -h`.
+
+### Bash autocompletion
+
+Use the included `bash_autocomplete` script with bash-completion v2+.
+
+```bash
+go install .
+cp ./bash_autocomplete /usr/local/etc/bash_completion.d/mycli
+```
+
+Rename the installed completion file to match your executable if you embed this library in another application.
+
+## Order of precedence on flag values
+
+1. Command line
+2. Environment variables
+3. Config file
+4. Defaults
+
+Environment values only participate when `DisableEnvVars` is set to `false`.
+
+## Testing using the example
+
+Run the demo application from the repository root:
+
+```bash
+go run -mod=mod ./example -c example/config.toml server
+go run -mod=mod ./example -c example/config.toml client
+go run -mod=mod ./example -c example/config.toml weserve cmdln
+go run -mod=mod ./example -c example/config.toml weserve config
+```
+
+## Warning on reuse of variables across commands
+
+If the same variable pointer is reused across multiple flags with different defaults, the library prints a warning because later bindings can override earlier values unexpectedly. Disable this validation only when the overlap is intentional:
+
+```go
+cli.DisableFlagValidation = true
+```

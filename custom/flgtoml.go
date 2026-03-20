@@ -60,7 +60,7 @@ func (c *Clients) Set(value string) error {
 	return nil
 }
 
-// TomlFlg flag type to store TOML config data
+// TomlFlg implements mycli.CLIFlag for structured client config payloads.
 type TomlFlg struct {
 	Variable      interface{}
 	Name          string

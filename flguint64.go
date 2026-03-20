@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// Uint64Flg implements CLIFlag for uint64 values.
 type Uint64Flg struct {
 	baseFlag
 	Variable      interface{}

@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// BashCompletionMain prints top-level flags and commands for shell completion.
 func BashCompletionMain(c *CLI) {
 
 	if flag.NArg() > 0 {
@@ -34,6 +35,7 @@ func BashCompletionMain(c *CLI) {
 	}
 }
 
+// BashCompletionSub prints flags and nested commands for a selected command.
 func BashCompletionSub(c *CLI, cm *CLICommand) {
 
 	if cm.FS.NArg() > 0 {

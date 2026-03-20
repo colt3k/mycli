@@ -13,6 +13,7 @@ var (
 	instance *TomlWrapper
 )
 
+// Toml returns the singleton wrapper used for config-file lookups.
 func Toml() *TomlWrapper {
 	once.Do(func() { // <-- atomic, does not allow repeating
 		instance = &TomlWrapper{} // <-- thread safe
@@ -21,10 +22,12 @@ func Toml() *TomlWrapper {
 	return instance
 }
 
+// TomlWrapper stores parsed TOML data as a nested map.
 type TomlWrapper struct {
 	Map map[string]interface{}
 }
 
+// LoadToml reads and unmarshals a TOML document into the wrapper map.
 func (t *TomlWrapper) LoadToml(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -37,6 +40,8 @@ func (t *TomlWrapper) LoadToml(path string) error {
 	}
 	return nil
 }
+
+// Has reports whether a dotted path exists in the loaded TOML tree.
 func (t *TomlWrapper) Has(key string) bool {
 	if key == "" {
 		return false
@@ -47,16 +52,21 @@ func (t *TomlWrapper) Has(key string) bool {
 	//}
 	//return false
 }
+
+// HasPath reports whether a nested path exists in the loaded TOML tree.
 func (t *TomlWrapper) HasPath(keys []string) bool {
 	return t.GetPath(keys) != nil
 }
 
+// Get returns the value located at a dotted path.
 func (t *TomlWrapper) Get(key string) interface{} {
 	if key == "" {
 		return t
 	}
 	return t.GetPath(strings.Split(key, "."))
 }
+
+// GetPath walks the nested TOML map and returns the value at the requested path.
 func (t *TomlWrapper) GetPath(keys []string) interface{} {
 	if len(keys) == 0 {
 		return t

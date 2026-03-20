@@ -34,6 +34,7 @@ var (
 	FlgValues              map[string]interface{}
 )
 
+// FieldPtr tracks a flag binding back to the shared variable pointer it mutates.
 type FieldPtr struct {
 	FieldName string
 	Address   string
@@ -72,9 +73,10 @@ type CLICommand struct {
 	SubCommands Commands
 }
 
+// Commands is a convenience alias for a slice of CLICommand pointers.
 type Commands []*CLICommand
 
-// RetrieveConfigValue	TODO Convert this section to a JSON string
+// RetrieveConfigValue unmarshals a hidden command subtree into the configured Variable.
 func (c *CLICommand) RetrieveConfigValue(val *TomlWrapper, name string) error {
 	valS := val.Get(c.Name)
 	wrapper := make(map[string]interface{}, 1)
@@ -345,6 +347,7 @@ func (c *CLI) ValidateValues(commands bool) error {
 	return nil
 }
 
+// FixPath converts a relative config path into an absolute path.
 func FixPath(path string) string {
 	if !filepath.IsAbs(path) {
 		pth, _ := filepath.Abs(path)
@@ -353,6 +356,7 @@ func FixPath(path string) string {
 	return path
 }
 
+// parseConfigFile overlays TOML values onto flags that still hold their defaults.
 func (c *CLI) parseConfigFile() error {
 	debug := false
 	// no config file passed, return
@@ -434,6 +438,8 @@ func (c *CLI) parseConfigFile() error {
 	}
 	return nil
 }
+
+// Parse builds flag sets, overlays env/config values, and dispatches the matching action.
 func (c *CLI) Parse() error {
 	FlgValues = make(map[string]interface{})
 	// add default flags, help, debug, debuglevel, version, config
@@ -891,6 +897,7 @@ func (c *CLI) Parse() error {
 	return nil
 }
 
+// runAction executes the supported hook and command action signatures.
 func runAction(act interface{}) error {
 	var err error
 	switch act.(type) {
@@ -906,6 +913,7 @@ func runAction(act interface{}) error {
 	}
 	return nil
 }
+
 func (c *CLI) findFlag(flgName string, flgs []CLIFlag) bool {
 	for _, d := range flgs {
 		if d.GName() == flgName {
@@ -914,6 +922,8 @@ func (c *CLI) findFlag(flgName string, flgs []CLIFlag) bool {
 	}
 	return false
 }
+
+// Flag returns a flag by name from the provided slice.
 func (c *CLI) Flag(flgName string, flgs []CLIFlag) CLIFlag {
 	for _, d := range flgs {
 		if d.GName() == flgName {
@@ -922,6 +932,8 @@ func (c *CLI) Flag(flgName string, flgs []CLIFlag) CLIFlag {
 	}
 	return nil
 }
+
+// Command returns a top-level command by name.
 func (c *CLI) Command(name string) *CLICommand {
 	for _, d := range c.Cmds {
 		if d.Name == name {
@@ -993,6 +1005,8 @@ func (c *CLI) setupBashFlag(cm *CLICommand) CLIFlag {
 	}
 	return bf
 }
+
+// buildFlags binds CLIFlag implementations onto a standard library FlagSet.
 func (c *CLI) buildFlags(flgSet *flag.FlagSet, flgs []CLIFlag, cm *CLICommand, cmdPath string) {
 
 	if (c.BashCompletion != nil || (cm != nil && cm.BashCompletion != nil)) && !c.findFlag("generate-bash-completion", flgs) {
@@ -1022,6 +1036,7 @@ func (c *CLI) adjustFlagVars(cmd string, flgs []CLIFlag) {
 	//fmt.Printf("DEBUG POST ON %v\n", Debug)
 }
 
+// buildCmds creates dedicated FlagSets for top-level commands and subcommands.
 func (c *CLI) buildCmds() {
 	var cmdPath string
 	for i, d := range c.Cmds {
@@ -1040,6 +1055,7 @@ func (c *CLI) buildCmds() {
 	}
 }
 
+// validateVariables warns when multiple flags reuse the same variable pointer with different defaults.
 func (c *CLI) validateVariables() {
 	// msg := fmt.Sprintf("Address of Variable for '%v' in command '%v' - at '%p'", c.Name, c.Command, c.Variable)
 	warned := false

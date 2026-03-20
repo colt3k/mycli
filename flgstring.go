@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// StringFlg implements CLIFlag for string values.
 type StringFlg struct {
 	baseFlag
 	Variable      interface{}

@@ -9,6 +9,8 @@ import (
 type baseFlag struct {
 	Command string
 }
+
+// CLIFlag describes the behavior each concrete flag type must implement.
 type CLIFlag interface {
 	GAction() interface{}
 	GEnvVar() string

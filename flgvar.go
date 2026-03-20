@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// VarFlg implements CLIFlag for comma-separated string lists.
 type VarFlg struct {
 	baseFlag
 	Variable      interface{}
@@ -205,6 +206,7 @@ func (c *VarFlg) UnquotedUsage() string {
 	return ""
 }
 
+// StringList is a simple comma-separated flag value used by VarFlg.
 type StringList []string
 
 // Implement the flag.Value interface
